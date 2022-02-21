@@ -1,0 +1,390 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript">
+            function validate()
+            {
+                p=f.phno.value.length;
+                if(p!=10)
+                {
+                alert("Phone number should contain 10 digits");
+                return false;
+                }
+            return true;
+            }
+        </script>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>ADMIN PAGE</title>
+        
+<!-- 
+
+Sentra Template
+
+https://templatemo.com/tm-518-sentra
+
+-->
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap-theme.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/fontAwesome.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/light-box.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
+        
+        
+
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+        <script src="{% static 'static1/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js'%}"></script>
+    </head>
+
+<body style="background-image: url('{% static 'static2/images/admin1.jpg' %}'); background-attachment:fixed;">
+
+
+
+        <header class="nav-down responsive-nav hidden-lg hidden-md">
+            <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+            <!--/.navbar-header-->
+            <div id="main-nav" class="collapse navbar-collapse">
+                <nav>
+                    <ul class="nav navbar-nav">
+                        <li><a href="#top">Home</a></li>
+                        <li><a href="#projects">Companies</a></li>
+                        <li><a href="#video">Customers</a></li>
+                        <li><a href="#blog"></a></li>
+                        <li><a href="#contact">Contact Us</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </header>
+
+        <div class="sidebar-navigation hidde-sm hidden-xs">
+            <div class="logo">
+                <a href="#">ADMIN PAGE<em></em></a>
+            </div>
+            <nav>
+                
+                <ul>
+                    <li>
+                        <a href="#blog">
+                            <span class="rect"></span>
+                            <span class="circle"></span>
+                            Registrations
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#contact">
+                            <span class="rect"></span>
+                            <span class="circle"></span>
+                            Add Details
+                        </a>
+                    </li>
+                    
+                </ul>
+            </nav>
+            <ul class="social-icons">
+                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+                <li><a href="#"><i class="fa fa-rss"></i></a></li>
+                <li><a href="#"></a></li>
+                
+                
+                <li><a href="/logout/" class="btn btn-primary">LOGOUT &nbsp;<i class="glyphicon glyphicon-log-out"></i></a></li>
+                
+            </ul>
+        </div>
+        
+        <div class="page-content" >
+            
+            <section id="blog" class="content-section" style="background-color: rgba(238, 234, 234, 0.76)">
+                <div class="section-heading">
+                    <h1><em>Registrations</em></h1>
+                </div>
+                <div class="section-content">
+                    <div class="tabs-content">
+                        <div class="wrapper">
+                            <ul class="tabs clearfix" data-tabgroup="first-tab-group">
+                              <li><a href="#tab1" class="active">Contractors</a></li>
+                              <li><a href="#tab2">Workers</a></li>
+                              <li><a href="#tab3">Customers</a></li>
+                              <li><a href="#tab4">Companies</a></li>
+                            </ul>
+                            <section id="first-tab-group" class="tabgroup">
+                                <div id="tab1">
+                                            <div class="table-responsive-xl">
+                                                <table class="table table-striped">
+                                                    <tr>
+                                                        <th>SI.No</th>
+                                                        <th>Contractor id</th>
+                                                        <th>User Name</th>
+                                                        <th>Field of Work</th>
+                                                        <th>Experience(years)</th>
+                                                        <th>Months</th>
+                                                        <th>City</th>
+                                                        <th>Pincode</th>
+                                                        <th>License NO</th>
+                                                        <th>Actions</th>
+                                                       
+                                                    </tr>
+                                                    <tr>
+                                                {% for i in c %}
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>{{i.Contractor_id}}</td>
+                                                    <td>{{i.c_name}}</td>
+                                                    <td>{{i.Field_of_work}}</td>
+                                                    <td>{{i.exp}}</td>
+                                                    <td>{{i.months}}</td>
+                                                    <td>{{i.city}}</td>
+                                                    <td>{{i.pincode}}</td>
+                                                    <td>{{i.lic_no}}</td>
+                                                    <td><a href="/edit_con/{{i.Contractor_id}}" class="btn btn-info" role="button">view</a></td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </table>
+                                            </div>
+                                </div>
+                                <div id="tab2">
+                                    
+                                            <div class="item">
+                                                
+                                                <div class="table-responsive-sm">
+                                                <table class="table table-striped">
+                                                    <tr>
+                                                        <th>SI.No</th>
+                                                        <th>Worker_id</th>
+                                                        <th>User Name</th>
+                                                        <th>Field of Work</th>
+                                                        <th>Experience(years)</th>
+                                                        <th>Months</th>
+                                                        <th>City</th>
+                                                        <th>Pincode</th>
+                                                        <th>Actions</th>
+                                                        
+                                                    </tr>
+                                                    <tr>
+                                                {% for i in w %}
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>{{i.Worker_id}}</td>
+                                                    <td>{{i.U_name}}</td>
+                                                    <td>{{i.Fd_of_work}}</td>
+                                                    <td>{{i.exp}}</td>
+                                                    <td>{{i.months}}</td>
+                                                    <td>{{i.city}}</td>
+                                                    <td>{{i.pincode}}</td>
+                                                    <td><a href="/edit_wor/{{i.Worker_id}}" class="btn btn-info" role="button">view</a></td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </table>
+                                                </div>
+                                            </div>
+                                </div>
+                                <div id="tab3">
+                                            <div class="item">
+                                                <div class="table-responsive-sm">
+                                                    <table class="table table-striped">
+                                                        <tr>
+                                                            <th>SI.No</th>
+                                                            <th>Customer id</th>
+                                                            <th>username</th>
+                                                            <th>Actions</th>
+                                                            
+                                                        </tr>
+                                                        <tr>
+                                                    {% for i in cus %}
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{i.Customer_id}}</td>
+                                                        <td>{{i.cu_name}}</td>
+                                                        <td><a href="/edit_cus/{{i.Customer_id}}" class="btn btn-info" role="button">view</a></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </table>
+                                                </div>
+                                            </div>
+                                </div>
+                                <div id="tab4"> 
+                                                <div class="table-responsive-sm">
+                                                    <table class="table table-striped">
+                                                        <tr>
+                                                            <th>SI.No</th>
+                                                            <th>Company id</th>
+                                                            <th>Username</th>
+                                                            <th>License</th>
+                                                            <th>Actions</th>
+                                                        </tr>
+                                                        <tr>
+                                                    {% for i in com %}
+                                                        <td>{{ forloop.counter }}</td>
+                                                        <td>{{i.Company_id}}</td>
+                                                        <td>{{i.co_name}}</td>
+                                                        <td>{{i.li_no}}</td>
+                                                        <td><a href="/edit_com/{{i.Company_id}}" class="btn btn-info" role="button">view</a></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </table>
+                                                </div>
+                                </div>
+                            </section> 
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <section id="contact" class="content-section" style="background-color: rgba(238, 234, 234, 0)">
+                <div id="contact-content" >
+                    <div class="section-heading">
+                        <h1>Add<br><em>Details</em></h1>
+                    </div>
+                    <div class="section-content" >
+                        <div class="table-responsive-sm">
+                            <br><bR>
+                            <table class="table table-responsive">
+                                <tr>
+                                <td>
+                                    <a type="button" class="" data-toggle="collapse" data-target="#rate"><img src="{% static 'static2/images/Rates.png' %}" width="200" height="200"></a>
+                                    <div id="rate" class="collapse">
+                                        <a href="/show_rates/" class="btn btn-info">Show Rates</a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a type="button" class="" data-toggle="collapse" data-target="#shop"><img src="{% static 'static2/images/shop.png' %}" width="200" height="200"></a>
+                                    <div id="shop" class="collapse">
+                                        <a href="/show_shops/" class="btn btn-info">Show Shops</a>
+                                    </div>
+                                </td>
+                                </tr>
+                                <tr><br><br></tr>
+                                <tr>
+                                <td>
+                                    <br>
+                                    <button type="button" class="" data-toggle="collapse" data-target="#demo">Add Rates</button>
+                                    <div id="demo" class="collapse">
+                                        <form action="/add_rates/" method="post">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                              <label for="sel1">Type of Work</label>
+                                              <select class="form-control" id="sel1" name="field_of_work">
+                                                <option value="" selected autocomplete="off" required>Types</option>
+                                                {% for d in d %}
+                                                <option value="{{d.Type_id}}">{{d.Type_of_work}}</option>
+                                                {% endfor %}
+                                              </select>
+
+                                              <label for="sel2">Type of Rate</label>
+                                              <select class="form-control" id="sel2" name="rate_type">
+                                                  <option value="">Types</option>
+                                                  <option value="Per day">Per Day</option>
+                                                  <option value="Squre Feet">Square Feet</option>
+                                              </select><br>
+                                             <input type="number" class="form-control" placeholder="Rate" name="rate" autocomplete="off" required>
+                                             <input type="text" class="form-control" placeholder="Material Name" name="m_name" autocomplete="off" required> 
+                                             <input type="number" class="form-control" placeholder="Material Rate" name="m_rate" autocomplete="off" required>
+                                             <button type="submit" class="">ADD</button>
+                                              
+                                            </div>
+                                          </form>  
+                                      </div>
+                                
+                                </td>
+                                <td>
+                                    <br>
+                                    <button type="button" class="" data-toggle="collapse" data-target="#demo1">Add Shop</button>
+                                    <br>
+                                    <div id="demo1" class="collapse">
+                                        <form action="/add_shop/" method="post" name="f">
+                                            {% csrf_token %}
+                                            <div class="form-group">
+                                              <label for="sel1">Type of Work</label>
+                                              <select class="form-control" id="sel1" name="field_of_work">
+                                                <option value="" selected autocomplete="off" required>Types</option>
+                                                {% for d in d %}
+                                                <option value="{{d.Type_id}}">{{d.Type_of_work}}</option>
+                                                {% endfor %}
+                                              </select><br>
+                                              <input type="text" class="form-control" placeholder="Shop Name" name="shop_name" autocomplete="off" required>
+                                             <input type="text" class="form-control" placeholder="Address" name="address" autocomplete="off" required>
+                                             <input type="text" class="form-control" placeholder="City" name="city" autocomplete="off" required>
+                                             <input type="text" class="form-control" placeholder="Pincode" name="pincode" autocomplete="off" required> 
+                                             <input type="text" class="form-control" placeholder="Phone No" name="phno" autocomplete="off" required>
+                                             <button type="submit" class="" onclick="return validate()">ADD</button>
+                                              
+                                            </div>
+                                          </form> 
+                                      </div>
+                                      
+                                </td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+            </section>
+            
+            
+        </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{% static 'static1/js/vendor/jquery-1.11.2.min.js'%}"><\/script>')</script>
+
+    <script src="{% static 'static1/js/vendor/bootstrap.min.js'%}"></script>
+    
+    <script src="{% static 'static1/js/plugins.js'%}"></script>
+    <script src="{% static 'static1/js/main.js'%}"></script>
+
+    <script>
+        // Hide Header on on scroll down
+        var didScroll;
+        var lastScrollTop = 0;
+        var delta = 5;
+        var navbarHeight = $('header').outerHeight();
+
+        $(window).scroll(function(event){
+            didScroll = true;
+        });
+
+        setInterval(function() {
+            if (didScroll) {
+                hasScrolled();
+                didScroll = false;
+            }
+        }, 250);
+
+        function hasScrolled() {
+            var st = $(this).scrollTop();
+            
+            // Make sure they scroll more than delta
+            if(Math.abs(lastScrollTop - st) <= delta)
+                return;
+            
+            // If they scrolled down and are past the navbar, add class .nav-up.
+            // This is necessary so you never see what is "behind" the navbar.
+            if (st > lastScrollTop && st > navbarHeight){
+                // Scroll Down
+                $('header').removeClass('nav-down').addClass('nav-up');
+            } else {
+                // Scroll Up
+                if(st + $(window).height() < $(document).height()) {
+                    $('header').removeClass('nav-up').addClass('nav-down');
+                }
+            }
+            
+            lastScrollTop = st;
+        }
+    </script>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+
+</body>
+</html>

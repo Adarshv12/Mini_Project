@@ -1,0 +1,27 @@
+<html>
+    {%load static%}
+    <head>
+        <link rel="stylesheet" href="{% static 'css2/style1.css' %}">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        </head>
+        <body>
+            <center>
+            <form>
+                {% csrf_token %}
+                <table class="responstable">
+                    <tr><th colspan="2">DETAILS</th></tr>
+                <tr><td>NAME</td><td>{{dd.Name}}</td></tr>
+                <tr><td>ADDRESS</td><TD>{{dd.Address}}</TD></tr>
+                <tr><td>PHONE</td><TD>{{dd.Ph_no}}</TD></tr>
+                <tr><td>EMAIL</td><td>{{dd.Email}}<br></td></tr>
+                
+                <tr><td colspan="2"><a href="/reject_com/{{dd.D_id}}" class="btn btn-danger">Reject</a></td></tr>
+               </table> 
+            </form>
+        </center>
+        </body>
+</html>

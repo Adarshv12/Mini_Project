@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+		{%load static%}
+<link href="{% static 'static2/css/jj.css' %}" rel="stylesheet" type="text/css" media="all" />
+<!-- //Custom Theme files -->
+<!-- web font -->
+
+<!-- //web font -->
+</head>
+<body style="background-image: url('{% static 'static2/images/bg_cou.jpg' %}')">
+	<!-- main -->
+	<div class="main-w3layouts wrapper">
+		<h1 style="color:black">EMAIL VERIFICATION</h1>
+        {% if messages %}
+        {% for message in messages %} 
+        <h2 style="color:black">{{ message }}</h2>
+        {% endfor %}
+        {% endif %}</div>
+		<div class="main-agileinfo">
+			<div class="agileits-top">
+				<form action="/approve_com/" method="post">
+                    {% csrf_token %}
+                        <input type="text" name="id" value="{{id}}" hidden>
+						<input class="text" type="text" name="otp" placeholder="OTP" required=""><br>
+                        <input type="submit" value="verify">
+					<div class="wthree-text">
+						<!--<label class="anim">
+							<input type="checkbox" class="checkbox" required="">
+							<span>I Agree To The Terms & Conditions</span>
+						</label>-->
+						
+				</form>
+			
+			</div>
+		</div>
+		
+		<ul class="colorlib-bubbles">
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+			<li></li>
+		</ul>
+	</div>
+	<!-- //main -->
+</body>
+</html>

@@ -1,0 +1,40 @@
+<html>
+    {%load static%}
+    <head>
+        <link rel="stylesheet" href="{% static 'css2/style1.css' %}">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+    </head>
+        <body>
+            <center>
+            <table class="responstable">
+                <tr>
+                    <th>Type</th>
+                    <th>Type of Rate</th>
+                    <th>Rate</th>
+                    <th>Material Name</th>
+                    <th>Material Rate</th>
+                    <th colspan="2">Actions</th>
+                </tr>
+                <tr>
+            {% for i in d %}
+            {% for j in c %}
+                {% if i.Type_id == j.Type_id %}
+                <td>{{j.Type_of_work}}</td>
+                <td>{{i.Rate_type}}</td>
+                <td>{{i.Rate}}</td>
+                <td>{{i.M_name}}</td>
+                <td>{{i.M_Rate}}</td>
+                <td><a href="#" class="btn btn-success">Edit</a></td>
+                <td><a href="#" class="btn btn-danger">Delete</a></td>
+                </tr>
+                {% endif %}
+            {% endfor %}
+            {% endfor %}
+            </table>
+        </center>
+        </body>
+</html>

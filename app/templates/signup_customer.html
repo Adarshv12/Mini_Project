@@ -26,13 +26,20 @@
                 alert("Password Doesn't Match");
                 return false;
             }
-            
             if(e.match(validemail))
             {
                 return true;
             }
             alert("Invalid Email");
             return false;
+        }
+        function numOnly(event) {
+        var key = event.keyCode;
+        return ((key >= 48 && key <= 57) || key == 8);
+        }
+        function alphaOnly(event) {
+        var key = event.keyCode;
+        return ((key >= 65 && key <= 90) ||  key == 8 ||  key == 32);
         }
     </script>
     <meta charset="UTF-8">
@@ -73,16 +80,16 @@
                 <form action="/customer_registration/" method="post" class="tm-signup-form" name="f">
                     {% csrf_token %}
                     <div class="input-field">
-                        <input placeholder="Name"  name="Name" type="text" class="validate" required="">
+                        <input placeholder="Name"  name="Name" type="text" class="validate" required="" onKeyDown="return alphaOnly(event)">
                     </div>
                     <div class="input-field">
                         <input placeholder="Username" name="username" type="text" class="validate" required="">
                     </div>
-                    <div class="input-field">
-                        <input placeholder="Address" name="Address" type="text" class="validate" required="">
+                    <div class="input-field">   
+                        <input placeholder="Address" name="Address" type="text" class="validate" required="" onKeyDown="return alphaOnly(event)">
                     </div>
                     <div class="input-field">
-                        <input placeholder="Phone NO" name="phno" type="text" class="validate" required="">
+                        <input placeholder="Phone NO" name="phno" type="text" class="validate" required="" onKeyDown="return numOnly(event)">
                     </div>
                     <div class="input-field" id="email div">
                         <input placeholder="Email ID" name="email" type="text" class="validate" required="">

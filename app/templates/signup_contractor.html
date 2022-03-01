@@ -34,6 +34,14 @@
             alert("Invalid Email");
             return false;
         }
+        function numOnly(event) {
+        var key = event.keyCode;
+        return ((key >= 48 && key <= 57) || key == 8);
+        }
+        function alphaOnly(event) {
+        var key = event.keyCode;
+        return ((key >= 65 && key <= 90) ||  key == 8 ||  key == 32);
+        }
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,13 +77,13 @@
                 <form action="/contractor_registration/" method="post" class="tm-signup-form" name="f">
                     {% csrf_token %}
                     <div class="input-field">
-                        <input placeholder="Name"  name="Name" type="text" class="validate" required="">
+                        <input placeholder="Name"  name="Name" type="text" class="validate" required="" onKeyDown="return alphaOnly(event)">
                     </div>
                     <div class="input-field">
-                        <input placeholder="Username" name="username" type="text" class="validate" required="">
+                        <input placeholder="Username" name="username" type="text" class="validate" required="" >
                     </div>
                     <div class="input-field">
-                        <input placeholder="Address" name="Address" type="text" class="validate" required="">
+                        <input placeholder="Address" name="Address" type="text" class="validate" required="" onKeyDown="return alphaOnly(event)">
                     </div>
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 pl-0 tm-pr-xs-0">
@@ -85,12 +93,12 @@
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 pr-0 tm-pl-xs-0">
                             <div class="input-field">
-                                <input placeholder="Zip Code" id="zipcode" name="pincode" type="text" class="validate" required="">
+                                <input placeholder="Zip Code" id="zipcode" name="pincode" type="text" class="validate" required="" onKeyDown="return numOnly(event)">
                             </div>
                         </div>
                     </div>
                     <div class="input-field">
-                        <input placeholder="Phone NO" name="phno" type="text" class="validate" required="">
+                        <input placeholder="Phone NO" name="phno" type="text" class="validate" required="" onKeyDown="return numOnly(event)">
                     </div>
                     <div class="input-field">
                         <input placeholder="Email ID" name="email" type="text" class="validate" required="">

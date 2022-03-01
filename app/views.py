@@ -1,7 +1,8 @@
 from calendar import c
+from xml.sax.handler import DTDHandler
 from django.shortcuts import redirect
 from django.shortcuts import render
-from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS
+from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages
 from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
@@ -12,10 +13,15 @@ from django.contrib import messages
 
 
 # Create your views here.
+def test(request):
+    return render(request,'test.html')
 def admin(request):
     return render(request,'admin_header.html')
 def index(request):
-    return render(request,'index.html')
+    r=Photos.objects.all()
+    d=Photos.objects.all().order_by('-id')
+    det=DETAILS.objects.all()
+    return render(request,'index.html',{"data":d,"det":det,"r":r})
 def register(request):
     return render(request,'register.html')
 def login(request):
@@ -137,6 +143,7 @@ def worker_registration(request):
     cud.Address=request.POST.get('Address')
     cud.Ph_no=request.POST.get('phno')
     cud.Email=request.POST.get('email')
+    email=request.POST.get('email')
     cud.save()
     cu.Worker_id=id
     cu.status="not verified"
@@ -148,6 +155,11 @@ def worker_registration(request):
     cu.pincode=request.POST.get('pincode')
     cu.Fd_of_work=request.POST.get('fd_of_work')
     cu.save()
+    subject = 'Successfull'
+    message = f'Welcome to justclick Portal.\n Your under verification'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail( subject, message, email_from, recipient_list )
     return render(request,'login.html')
 
 def contractor_registration(request):
@@ -245,96 +257,100 @@ def login_user(request):
     data=LOGIN.objects.all()
     us=request.POST.get('username')
     ps=request.POST.get('password')
-    request.session['uid']=us
     flag=0
     for da in data:
         if us == da.username and ps == da.password:  
             T=da.type
             flag=1
             if T == 'admin':
-                if 'uid' not in request.session:
-                    return HttpResponse("/login/")
-                else:
-                    e=CUSTOMER_DETAILS.objects.filter(status="verified")
-                    co=COMPANY_DETAILS.objects.filter(status="verified")
-                    con=CONTRACTOR_DETAILS.objects.filter(status="not verified")
-                    wor=WORKER_DETAILS.objects.filter(status="not verified")
-                    d=TYPE_OF_WORK.objects.all()
-                    return render(request,"admin_h.html",{"cus":e,"c":con,"w":wor,"com":co,"d":d})
+                request.session['uid']=us
+                return redirect('/login_admin/')
             elif T == 'customer':
-                return render(request,'customer_h.html')
+                request.session['cusid']=us
+                return redirect('/login_cus/')
             elif T == 'company':
+                request.session['uid']=us
                 return render(request,'company_h.html')
             elif T == 'worker':
-                return render(request,'worker_h.html')
+                request.session['woid']=us
+                return redirect('/login_worker/')
             elif T == 'contractor':
+                request.session['uid']=us
                 return render(request,'contractor_h.html')
     if flag == 0:
         messages.success(request, 'Incorrect Username or Password')
         return redirect('/login/')
 
-def reg_user(request):
+def login_cus(request):
+    if 'cusid ' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        return render(request,'customer_h.html')
+
+def logout_cus(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        request.session['cusid']=""
+        del request.session['uid']
+        return render('/index/')
+
+def login_admin(request):
     if 'uid' not in request.session:
-        return HttpResponse("invalid")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         e=CUSTOMER_DETAILS.objects.filter(status="verified")
-        return render(request,"reg_user.html",{"w":e})
+        co=COMPANY_DETAILS.objects.filter(status="verified")
+        con=CONTRACTOR_DETAILS.objects.filter(status="not verified")
+        wor=WORKER_DETAILS.objects.filter(status="not verified")
+        cou_user=con.count()+wor.count()
+        d=TYPE_OF_WORK.objects.all()
+        m=Messages.objects.all().order_by('-id')[:3]
+        count=m.count()
+        return render(request,"admin_h.html",{"cus":e,"c":con,"w":wor,"com":co,"d":d,"m":m,"count":count,"cou_user":cou_user})
 
-def reg_con(request):
-    if 'uid' not in request.session:
-        return HttpResponse("invalid")
-    else:
-        e=CONTRACTOR_DETAILS.objects.filter(status="not verified")
-        return render(request,"reg_con.html",{'w':e})
-
-def reg_wor(request):
-    if 'uid' not in request.session:
-        return HttpResponse("invalid")
-    else:
-        e=WORKER_DETAILS.objects.filter(status="not verified")
-        return render(request,"reg_wor.html",{'w':e})
-
-def reg_com(request):
-    if 'uid' not in request.session:
-        return HttpResponse("invalid")
-    else:
-        e=COMPANY_DETAILS.objects.filter(status="verified")
-        return render(request,"reg_com.html",{'w':e})
 
 def edit_cus(request,Customer_id):
     if 'uid' not in request.session:
-        return HttpResponse("invalid")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=DETAILS.objects.get(D_id=Customer_id)
         return render(request,'edit_cus.html',{'dd':data})
 
 def edit_con(request,Contractor_id):
     if 'uid' not in request.session:
-        return HttpResponse("invalid")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=DETAILS.objects.get(D_id=Contractor_id)
         return render(request,'edit_con.html',{'dd':data})
 
 def edit_wor(request,Worker_id):
     if 'uid' not in request.session:
-        return HttpResponse("invalid")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=DETAILS.objects.get(D_id=Worker_id)
         return render(request,'edit_wor.html',{'dd':data})
 
 def edit_com(request,Company_id):
     if 'uid' not in request.session:
-        return HttpResponse("invalid")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=DETAILS.objects.get(D_id=Company_id)
         return render(request,'edit_com.html',{'dd':data})
 
 def reject_cus(request,D_id):
-    d=CUSTOMER_DETAILS.objects.get(Customer_id=D_id)
-    d.status="rejected"
-    d.save()
-    return render(request,"admin_h.html")
-
+        d=CUSTOMER_DETAILS.objects.get(Customer_id=D_id)
+        d.status="rejected"
+        d.save()
+        return redirect('/login_admin/')
+    
 def approve_con(request,D_id):
     data=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
     d=DETAILS.objects.get(D_id=D_id)
@@ -351,7 +367,7 @@ def approve_con(request,D_id):
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
-    return render(request,"admin_h.html")
+    return redirect('/login_admin/')
 
 def reject_con(request,D_id):
     d=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
@@ -364,7 +380,7 @@ def reject_con(request,D_id):
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
-    return render(request,"admin_h.html")
+    return redirect("/login_admin/")
 
 def approve_wor(request,D_id):
     data=WORKER_DETAILS.objects.get(Worker_id=D_id)
@@ -382,7 +398,7 @@ def approve_wor(request,D_id):
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
-    return render(request,"admin_h.html")
+    return redirect('/login_admin/')
 
 def reject_wor(request,D_id):
     d=WORKER_DETAILS.objects.get(Worker_id=D_id)
@@ -395,28 +411,42 @@ def reject_wor(request,D_id):
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
-    return render(request,"admin_h.html")
+    return redirect('/login_admin/')
 
 def reject_com(request,D_id):
     d=COMPANY_DETAILS.objects.get(Company_id=D_id)
     d.status="rejected"
     d.save()
-    return render(request,"admin_h.html")
+    return redirect('/login_admin/')
+
+# logout views
+
 def logout(request):
     if 'uid' not in request.session:
-        return HttpResponse("You Have Already Loged Out")
+        messages.success(request, 'Session Expired Login Again')
+        return redirect('/login/')
     else:
         request.session['uid']=""
         del request.session['uid']
+        return redirect('/index/')
+def logout_worker(request):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired Login Again')
+        return redirect('/login/')
+    else:
+        request.session['woid']=""
+        del request.session['woid']
         return redirect('/index/')
 
 def verify_email(request):
     return render(request,'verify_email.html')
 def email_form(request):
     return render(request,'email_form.html')
+
 def add_shop(request):
     if 'uid' not in request.session:
-        return HttpResponse("/login/")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=idgenerator.objects.get(id=1)
         sid=data.sid
@@ -433,10 +463,12 @@ def add_shop(request):
         d.pincode=request.POST.get('pincode')
         d.Ph_no=request.POST.get('phno')
         d.save()
-        return HttpResponse("Shop added Successfully")
+        messages.success(request, 'Shop Added Successfully')
+        return redirect('/login_admin/')
 def add_rates(request):
     if 'uid' not in request.session:
-        return redirect("/login/")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=idgenerator.objects.get(id=1)
         rid=data.rid
@@ -452,22 +484,96 @@ def add_rates(request):
         d.M_name=request.POST.get('m_name')
         d.M_Rate=request.POST.get('m_rate')
         d.save()
-        return HttpResponse("Rates added Successfully")
+        messages.success(request, 'Rates Added Successfully')
+        return redirect('/login_admin/')
 
 def show_shops(request):
     if 'uid' not in request.session:
-        return redirect("/login/")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=SHOP_DETAILS.objects.all()
         dat=TYPE_OF_WORK.objects.all()
         return render(request,"show_shops.html",{"d":data,"c":dat})
 def show_rates(request):
     if 'uid' not in request.session:
-        return redirect("/login/")
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
     else:
         data=RATES.objects.all()
         dat=TYPE_OF_WORK.objects.all()
         return render(request,"show_rates.html",{"d":data,"c":dat})
+
+def edit_rate(request):
+    id=request.POST.get('rateid')
+    r=RATES.objects.get(Rate_id=id)
+    r.Rate=request.POST.get('rate')
+    r.save()
+    return redirect("/show_rates/")
+
+def del_rate(request,Rate_id):
+    r=RATES.objects.get(Rate_id=Rate_id)
+    r.delete()
+    return redirect("/show_rates/")
+
+def del_shop(request,Shop_id):
+    s=SHOP_DETAILS.objects.get(Shop_id=Shop_id)
+    s.delete()
+    return redirect("/show_shops/")
+
+# worker modules
+def login_worker(request):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        usid=request.session['woid']
+        d=WORKER_DETAILS.objects.get(U_name=usid)
+        wor_id=d.Worker_id
+        details=DETAILS.objects.get(D_id=wor_id)
+        dat=Photos.objects.filter(userid=wor_id).order_by('-id')[:5]
+        return render(request,"worker_h.html",{"data":d,"p":dat,"w":details})
+
+def add_image(request):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=Photos()
+        d.userid=request.POST.get('userid')
+        d.Title=request.POST.get('title')
+        d.user_name=request.POST.get('uname')
+        Photo=request.FILES['photo']
+        fs=FileSystemStorage()
+        fn=fs.save(Photo.name,Photo)
+        uploaded_file_url=fs.url(fn)
+        d.image=uploaded_file_url
+        d.save()
+        messages.success(request, 'Image added Successfully')
+        return redirect('/login_worker/')
+def show_image(request,Worker_id):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=Photos.objects.filter(userid=Worker_id)
+        return render(request,"show_image.html",{"data":d})
+
+def message(request):
+    m=Messages()
+    m.Name=request.POST.get('name')
+    m.Subject=request.POST.get('subject')
+    m.Message=request.POST.get('message')
+    email=request.POST.get('email')
+    m.Email=email
+    m.save()
+    subject = 'Thank You'
+    message = f'We Got Your Message.\n We will Contact you Shortly'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail( subject, message, email_from, recipient_list )
+    return redirect("/index/")
+
 
         
         

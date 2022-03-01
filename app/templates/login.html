@@ -22,6 +22,9 @@
 </head>
 
 <body id="login">
+    <div align="right">
+        <a href="/index/"><img src="{% static 'static1/img/homepage.png'%}" width="50" height="50"></a>
+    </div>
     <div class="container">
         {% if messages %}   
             {% for message in messages %} 
@@ -48,13 +51,6 @@
                     </div>
                 </form>
             </div>
-            <!-- <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 tm-login-r">
-                <header class="font-weight-light tm-bg-black p-5 h-100">
-                    <h3 class="mt-0 text-white font-weight-light">Your Login</h3>
-                    <p>Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
-                    <p class="mb-0">Vestibulum neque neque, porttitor quis lacinia eu, iaculis id dui. Mauris quis velit lectus.</p>
-                </header>
-            </div> -->
         </div>
         <!-- <div class="row">
             <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 ml-auto mr-0 text-center">

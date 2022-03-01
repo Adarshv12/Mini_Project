@@ -7,6 +7,12 @@
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script>
+        function numOnly(event) {
+            var key = event.keyCode;
+            return ((key >= 48 && key <= 57) || key == 8);
+        }
+        </script>
     </head>
         <body>
             <center>
@@ -25,11 +31,21 @@
                 {% if i.Type_id == j.Type_id %}
                 <td>{{j.Type_of_work}}</td>
                 <td>{{i.Rate_type}}</td>
-                <td>{{i.Rate}}</td>
+                <td>{{i.Rate}}
+                    <div id="{{i.id}}" class="collapse">
+                        <form action="/edit_rate/" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{i.Rate_id}}" name="rateid">
+                            <input type="number" name="rate" class="form-control" required=""><br>
+                            <input type="submit" value="add" class="btn btn-primary">
+                            <!-- <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-ok"></i></button> -->
+                        </form>
+                    </div>
+                </td>
                 <td>{{i.M_name}}</td>
                 <td>{{i.M_Rate}}</td>
-                <td><a href="#" class="btn btn-success">Edit</a></td>
-                <td><a href="#" class="btn btn-danger">Delete</a></td>
+                <td><a class="btn btn-success" data-toggle="collapse" data-target="#{{i.id}}">Edit</a></td>
+                <td><a href="/del_rate/{{i.Rate_id}}" class="btn btn-danger">Delete</a></td>
                 </tr>
                 {% endif %}
             {% endfor %}

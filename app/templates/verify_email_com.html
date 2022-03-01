@@ -22,7 +22,7 @@
 			<div class="agileits-top">
 				<form action="/approve_com/" method="post">
                     {% csrf_token %}
-                        <input type="text" name="id" value="{{id}}" hidden>
+                        <input type="hidden" name="id" value="{{id}}" hidden>
 						<input class="text" type="text" name="otp" placeholder="OTP" required=""><br>
                         <input type="submit" value="verify">
 					<div class="wthree-text">

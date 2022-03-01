@@ -16,6 +16,7 @@
 <body style="background-image: url('{% static 'static2/images/bg_cou.jpg' %}')">
 	<!-- main -->
 	<div class="main-w3layouts wrapper">
+		<h1 style="color:black">EMAIL VERIFICATION</h1>
 		{% if messages %}   
         {% for message in messages %} 
         <div class="alert alert-danger alert-dismissible" style="width: 450px;">
@@ -29,7 +30,7 @@
 			<div class="agileits-top">
 				<form action="/approve_cus/" method="post">
                     {% csrf_token %}
-                        <input type="text" name="id" value="{{id}}" readonly="" hidden>
+                        <input type="hidden" name="id" value="{{id}}" readonly="" hidden>
 						<input class="text" type="text" name="otp" placeholder="OTP" required=""><br>
                         <input type="submit" value="verify">
 					<div class="wthree-text">

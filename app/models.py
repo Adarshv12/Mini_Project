@@ -39,7 +39,6 @@ class CONTRACTOR_DETAILS(models.Model):
     city=models.CharField(max_length=30)
     pincode=models.CharField(max_length=10)
     lic_no=models.CharField(max_length=20)
-    W_img=models.CharField(max_length=100)
     status=models.CharField(max_length=30)
     password=models.CharField(max_length=15)
 
@@ -54,9 +53,9 @@ class WORKER_DETAILS(models.Model):
     city=models.CharField(max_length=30)
     pincode=models.CharField(max_length=10)
     U_name=models.CharField(max_length=20)
-    img=models.CharField(max_length=100)
     status=models.CharField(max_length=30)
     password=models.CharField(max_length=15)
+    profile=models.CharField(max_length=30)
 
 
     class Meta:
@@ -112,3 +111,30 @@ class idgenerator(models.Model):
 
     class Meta:
         db_table = "idgenerator"
+class Photos(models.Model):
+    userid=models.CharField(max_length=20)
+    user_name=models.CharField(max_length=20)
+    Title=models.CharField(max_length=20)
+    image=models.CharField(max_length=100)
+    date=models.DateField(auto_now_add=True)
+
+    class Meta:
+        db_table = "PHOTOS"
+
+class Messages(models.Model):
+    Name=models.CharField(max_length=20)
+    Subject=models.CharField(max_length=100)
+    Message=models.CharField(max_length=200)
+    Email=models.CharField(max_length=20)
+    date=models.DateField(auto_now_add=True)
+
+    class Meta:
+        db_table = "MESSAGES"
+
+class profiles(models.Model):
+    userid=models.CharField(max_length=10)
+    type=models.CharField(max_length=30)
+    link=models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "PROFILES"

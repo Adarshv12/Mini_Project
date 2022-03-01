@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from app import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -36,10 +36,6 @@ urlpatterns = [
     path('contractor_registration/',views.contractor_registration),
     path('company_registration/',views.company_registration),
     path('login_user/',views.login_user),
-    path('reg_user/',views.reg_user),
-    path('reg_con/',views.reg_con),
-    path('reg_wor/',views.reg_wor),
-    path('reg_com/',views.reg_com),
     path('edit_cus/<Customer_id>',views.edit_cus),
     path('edit_con/<Contractor_id>',views.edit_con),
     path('edit_wor/<Worker_id>',views.edit_wor),
@@ -58,4 +54,22 @@ urlpatterns = [
     path('add_shop/',views.add_shop),
     path('show_shops/',views.show_shops),
     path('show_rates/',views.show_rates),
+    path('login_admin/',views.login_admin),
+    path('logout_worker/',views.logout_worker),
+    path('login_worker/',views.login_worker),
+    path('test/',views.test),
+    path('add_image/',views.add_image),
+    path('show_image/<Worker_id>',views.show_image),
+    path('message/',views.message),
+    path('login_cus/',views.login_cus),
+    path('edit_rate/',views.edit_rate),
+    path('del_rate/<Rate_id>',views.del_rate),
+    path('del_shop/<Shop_id>',views.del_shop),
+
+
+
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Worker Invite</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Work Details</h2>
+  <form action="/add_work_invite/" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {% for t in t %}
+        <input type="text" class="form-control" value="{{t.U_name}}" name="" readonly><br>
+        
+        <input type="text" class="form-control" value="{{t.Fd_of_work}}" name="type" readonly><br>
+
+        <input type="text" class="form-control" value="{{t.city}}" name="city" readonly>
+        <input type="hidden" class="form-control" value="{{t.Worker_id}}" name="wid" readonly>
+
+
+        {% endfor %}
+    </div>
+    <div class="form-group">
+      <input type="text" class="form-control" placeholder="Location" name="loc"><br>
+      <input type="hidden" class="form-control" value="{{c}}" name="cid">
+
+
+      <textarea type="text" class="form-control" placeholder="Description" name="desc"></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Send</button>
+    <button href="" class="btn btn-danger">cancel</button>
+
+  </form>
+</div>
+
+</body>
+</html>

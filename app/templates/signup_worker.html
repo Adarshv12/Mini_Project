@@ -4,18 +4,43 @@
 
 <head>
     <script type="text/javascript">
+        function pincheck(){
+            var pin=f.pincode.value;
+            var regex = /^\(?([1-9]{1}[0-9]{2}\)?(\s{0,1}[0-9]{3}))$/;
+            if(pin.match(regex)){
+                return true;
+            }
+            alert("Invalid Pincode");
+            $('#pin').val('');
+            return false;
+        }
+        function phcheck(){
+            var p=f.phno.value.length;
+            var ph=f.phno.value;
+            var phoneno = /^\(?([6789][0-9]{2})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
+            if(ph.match(phoneno)){
+                return true;
+            }
+            alert("Invalid Phone Number");
+            $('#p').val('');
+            return false;
+            
+        }
+        function emcheck(){
+            var e=f.email.value;
+            var validemail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+            if(e.match(validemail))
+            {
+                return true;
+            }
+            alert("Invalid Email");
+            $('#e').val('');
+            return false;
+        }
         function mg()
         {
             var a=f.password.value;
             var b=f.password2.value;
-            var p=f.phno.value.length;
-            var e=f.email.value;
-            var validemail = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
-            if(p!=10)
-            {
-                alert("phone number should contain 10 digits");
-                return false;
-            }
             if(a.length<8)
             {
                 alert("password must contain minimum 8 characters")
@@ -26,13 +51,7 @@
                 alert("Password Doesn't Match");
                 return false;
             }
-            
-            if(e.match(validemail))
-            {
-                return true;
-            }
-            alert("Invalid Email");
-            return false;
+            return true;
         }
         function numOnly(event) {
         var key = event.keyCode;
@@ -83,7 +102,7 @@
                         <input placeholder="Username" name="username" type="text" class="validate" required="" autocomplete="off">
                     </div>
                     <div class="input-field">
-                        <input placeholder="Address" name="Address" type="text" class="validate" required="" autocomplete="off" onKeyDown="return alphaOnly(event)">
+                        <textarea placeholder="Address" name="Address" type="text" class="validate" required="" autocomplete="off" onKeyDown="return alphaOnly(event)"></textarea>
                     </div>
                     <div class="row">
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 pl-0 tm-pr-xs-0">
@@ -93,15 +112,15 @@
                         </div>
                         <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-6 pr-0 tm-pl-xs-0">
                             <div class="input-field">
-                                <input placeholder="Zip Code" id="zipcode" name="pincode" type="text" class="validate" required="" autocomplete="off" onKeyDown="return numOnly(event)">
+                                <input placeholder="Zip Code" id="pin" name="pincode" type="text" class="validate" required="" autocomplete="off" onKeyDown="return numOnly(event)" onchange="return pincheck()">
                             </div>
                         </div>
                     </div>
                     <div class="input-field">
-                        <input placeholder="Phone NO" name="phno" type="text" class="validate" required="" autocomplete="off" onKeyDown="return numOnly(event)"> 
+                        <input placeholder="Phone NO" name="phno" id="p" type="text" class="validate" required="" autocomplete="off" onKeyDown="return numOnly(event)" onchange="return phcheck()"> 
                     </div>
                     <div class="input-field">
-                        <input placeholder="Email ID" name="email" type="text" class="validate" required="" autocomplete="off">
+                        <input placeholder="Email ID" name="email" id="e" type="text" class="validate" required="" autocomplete="off" onchange="return emcheck()">
                     </div>
                     <div class="row">
                         <select name="fd_of_work">

@@ -161,6 +161,7 @@
                                                         <th>City</th>
                                                         <th>Pincode</th>
                                                         <th>License NO</th>
+                                                        <th>Status</th>
                                                         <th>Actions</th>
                                                        
                                                     </tr>
@@ -175,7 +176,8 @@
                                                     <td>{{i.city}}</td>
                                                     <td>{{i.pincode}}</td>
                                                     <td>{{i.lic_no}}</td>
-                                                    <td><a href="/edit_con/{{i.Contractor_id}}" class="btn btn-info" role="button">view</a></td>
+                                                    <td>{{i.status}}</td>
+                                                    <td><a href="/edit_con/{{i.Contractor_id}},{{i.status}}" class="btn btn-info" role="button">view</a></td>
                                                     </tr>
                                                 {% endfor %}
                                                 </table>
@@ -196,6 +198,7 @@
                                                         <th>Months</th>
                                                         <th>City</th>
                                                         <th>Pincode</th>
+                                                        <th>status</th>
                                                         <th>Actions</th>
                                                         
                                                     </tr>
@@ -209,7 +212,8 @@
                                                     <td>{{i.months}}</td>
                                                     <td>{{i.city}}</td>
                                                     <td>{{i.pincode}}</td>
-                                                    <td><a href="/edit_wor/{{i.Worker_id}}" class="btn btn-info" role="button">view</a></td>
+                                                    <td>{{i.status}}</td>
+                                                    <td><a href="/edit_wor/{{i.Worker_id}},{{i.status}}" class="btn btn-info" role="button">view</a></td>
                                                     </tr>
                                                 {% endfor %}
                                                 </table>
@@ -224,6 +228,7 @@
                                                             <th>SI.No</th>
                                                             <th>Customer id</th>
                                                             <th>username</th>
+                                                            <th>Status</th>
                                                             <th>Actions</th>
                                                             
                                                         </tr>
@@ -232,6 +237,7 @@
                                                         <td>{{ forloop.counter }}</td>
                                                         <td>{{i.Customer_id}}</td>
                                                         <td>{{i.cu_name}}</td>
+                                                        <td>{{i.status}}</td>
                                                         <td><a href="/edit_cus/{{i.Customer_id}}" class="btn btn-info" role="button">view</a></td>
                                                         </tr>
                                                     {% endfor %}

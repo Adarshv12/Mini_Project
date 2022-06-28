@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Edit Contractor</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript">
+    function mg()
+    {
+        var p=f.phno.value.length;
+        if(p!=10)
+        {
+            alert("Phone number should contain 10 digits");
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    </script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Enter Details</h2>
+  <form class="form-horizontal" action="/update_contractor/" method="post" name="f" enctype="multipart/form-data">
+      {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">username</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" value="{{f.c_name}}" name="uname" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2">Address</label>
+        <div class="col-sm-10">
+          <textarea type="text" class="form-control" value="" name="address">{{d.Address}}</textarea>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2">City</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" value="{{f.city}}" name="city">
+        </div>
+      </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2">Phone NO</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value="{{d.Ph_no}}" name="phno">
+      </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Email</label>
+        <div class="col-sm-10">
+          <input type="email" class="form-control" id="email" value="{{d.Email}}" name="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2">Upload Your Profile Photo</label>
+        <div class="col-sm-10">
+          <img id="blah" src="{{f.profile_image}}" height="150" width="120">
+          <input type="file" class="form-control" id="pimage" value="" name="pimage" onchange="readURL(this);">
+        </div>
+      </div>
+    <div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-10">
+        <input type="submit" value="Save" class="btn btn-primary" onclick="return mg()">
+      </div>
+    </div>
+  </form>
+</div>
+
+</body>
+<script>
+  function readURL(input) {
+      if (input.files && input.files[0]) {
+          var reader = new FileReader();
+
+          reader.onload = function(e) {
+              $('#blah').attr('src', e.target.result);
+          };
+
+          reader.readAsDataURL(input.files[0]);
+      }
+  }
+</script>
+</html>

@@ -1,27 +1,37 @@
 from calendar import c
+from email.headerregistry import Address
 from xml.sax.handler import DTDHandler
 from django.shortcuts import redirect
 from django.shortcuts import render
-from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages
-from django.http import HttpResponse
+from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
+TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite
+from django.http import HttpResponse, JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 import myapp.settings
 from django.core.mail import send_mail
 import math, random
-from django.contrib import messages
+from django.contrib import messages 
+from django.core import serializers  
+from django.views import View
+import json
+from django.views.decorators.cache import cache_control
+import requests
 
 
 # Create your views here.
+
+
 def test(request):
     return render(request,'test.html')
 def admin(request):
     return render(request,'admin_header.html')
 def index(request):
     r=Photos.objects.all()
-    d=Photos.objects.all().order_by('-id')
+    dc=Photos.objects.filter(userid__istartswith='CON').order_by('-date')[:3]
+    d=Photos.objects.filter(userid__istartswith='W').order_by('-date')[:5]
     det=DETAILS.objects.all()
-    return render(request,'index.html',{"data":d,"det":det,"r":r})
+    return render(request,'index.html',{"data":d,"det":det,"r":r,'dc':dc})
 def register(request):
     return render(request,'register.html')
 def login(request):
@@ -156,7 +166,7 @@ def worker_registration(request):
     cu.Fd_of_work=request.POST.get('fd_of_work')
     cu.save()
     subject = 'Successfull'
-    message = f'Welcome to justclick Portal.\n Your under verification'
+    message = f'Welcome to justclick Portal.\n You are under verification'
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
@@ -194,11 +204,11 @@ def contractor_registration(request):
     cu.Field_of_work=request.POST.get('fd_of_work')
     cu.save()
     subject = 'Successfull'
-    message = f'Welcome to justclick Portal.\n Your under verification'
+    message = f'Welcome to justclick Portal.\n You are under verification'
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
-    return render(request,'login.html')
+    return redirect('/login/')
 
 def company_registration(request):
     com1=request.session['coid']
@@ -253,6 +263,7 @@ def approve_com(request):
         messages.success(request, 'OTP is Incorrect')
         return render(request,'verify_email_com.html',{'id':id})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login_user(request):
     data=LOGIN.objects.all()
     us=request.POST.get('username')
@@ -275,38 +286,121 @@ def login_user(request):
                 request.session['woid']=us
                 return redirect('/login_worker/')
             elif T == 'contractor':
-                request.session['uid']=us
-                return render(request,'contractor_h.html')
+                request.session['conid']=us
+                return redirect('/login_con/')
     if flag == 0:
         messages.success(request, 'Incorrect Username or Password')
         return redirect('/login/')
 
-def login_cus(request):
-    if 'cusid ' not in request.session:
+# Customer modules -----------------------------------------------------------------------------------------------
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_con(request):
+    if 'conid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
-        return render(request,'customer_h.html')
+        usid=request.session['conid']
+        
+        d=CONTRACTOR_DETAILS.objects.get(c_name=usid)
+        con_id=d.Contractor_id
+        p=tbl_contractor_invite.objects.filter(status='1') & tbl_contractor_invite.objects.filter(Contractor_id=con_id)
+        list = []
+        for a in p:
+            pd=tbl_projects.objects.get(id=a.Project_id)
+            list.append(pd)
+        pr=tbl_contractor_invite.objects.filter(Contractor_id=con_id) & (tbl_contractor_invite.objects.filter(status='0'))
+        c=pr.count()
+        dat=Photos.objects.filter(userid=con_id).order_by('-id')[:5]
+        return render(request,'contractor_h.html',{'data':d,'c':c,'p':dat,'l':list})
 
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_worker(request):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        usid=request.session['woid']
+        d=WORKER_DETAILS.objects.get(U_name=usid)
+        wor_id=d.Worker_id
+        w=work_invite.objects.filter(Worker_id=wor_id) & work_invite.objects.filter(Status='0')
+        all=work_invite.objects.filter(Worker_id=wor_id)
+        c=w.count()
+        details=DETAILS.objects.get(D_id=wor_id)
+        dat=Photos.objects.filter(userid=wor_id).order_by('-id')[:5]
+        return render(request,"worker_h.html",{"data":d,"p":dat,"w":details,'wi':all,'c':c})
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
+def login_cus(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        usid=request.session['cusid']
+        d=CUSTOMER_DETAILS.objects.get(cu_name=usid)
+        cus_id=d.Customer_id
+        details=DETAILS.objects.get(D_id=cus_id)
+        t=TYPE_OF_WORK.objects.all()
+        return render(request,'customer_h.html',{'data':details,'d':d,'t':t})
+
+def user_edit(request,Customer_id):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=DETAILS.objects.get(D_id=Customer_id)
+        f=CUSTOMER_DETAILS.objects.get(Customer_id=Customer_id)
+        return render(request,"user_edit.html",{'d':d,'f':f})
+
+def update_user(request):
+    unm=request.POST.get('uname')
+    d=CUSTOMER_DETAILS.objects.get(cu_name=unm)
+    id=d.Customer_id
+    data=DETAILS.objects.get(D_id=id)
+    data.Address=request.POST.get('address')
+    data.Ph_no=request.POST.get('phno')
+    em=request.POST.get('email')
+    data.Email=em
+    data.save()
+    subject = 'Profile Update'
+    message = f'Details Updated Succesfully'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [em]
+    send_mail( subject, message, email_from, recipient_list )
+    return redirect('/login_cus/')
+
+@cache_control(no_cache=True, must_revalidate=True)
 def logout_cus(request):
     if 'cusid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
         request.session['cusid']=""
-        del request.session['uid']
-        return render('/index/')
+        del request.session['cusid']
+        return redirect('/index/')
 
+@cache_control(no_cache=True, must_revalidate=True)
+def logout_con(request):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        request.session['conid']=""
+        del request.session['conid']
+        return redirect('/index/')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def login_admin(request):
     if 'uid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
-        e=CUSTOMER_DETAILS.objects.filter(status="verified")
-        co=COMPANY_DETAILS.objects.filter(status="verified")
-        con=CONTRACTOR_DETAILS.objects.filter(status="not verified")
-        wor=WORKER_DETAILS.objects.filter(status="not verified")
-        cou_user=con.count()+wor.count()
+        wcount=WORKER_DETAILS.objects.filter(status="not verified")
+        ccount=CONTRACTOR_DETAILS.objects.filter(status="not verified")
+        e=CUSTOMER_DETAILS.objects.filter(status="verified") | CUSTOMER_DETAILS.objects.filter(status="rejected")
+        co=COMPANY_DETAILS.objects.filter(status="verified") | COMPANY_DETAILS.objects.filter(status="rejected")
+        con=CONTRACTOR_DETAILS.objects.filter(status="not verified") | CONTRACTOR_DETAILS.objects.filter(status="verified") | CONTRACTOR_DETAILS.objects.filter(status="rejected")
+        wor=WORKER_DETAILS.objects.filter(status="not verified") | WORKER_DETAILS.objects.filter(status="verified") | WORKER_DETAILS.objects.filter(status="rejected")
+        cou_user=wcount.count()+ccount.count()
         d=TYPE_OF_WORK.objects.all()
         m=Messages.objects.all().order_by('-id')[:3]
         count=m.count()
@@ -321,21 +415,29 @@ def edit_cus(request,Customer_id):
         data=DETAILS.objects.get(D_id=Customer_id)
         return render(request,'edit_cus.html',{'dd':data})
 
-def edit_con(request,Contractor_id):
+def edit_con(request,Contractor_id,status):
     if 'uid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
-        data=DETAILS.objects.get(D_id=Contractor_id)
-        return render(request,'edit_con.html',{'dd':data})
+        if status == 'not verified':
+            data=DETAILS.objects.get(D_id=Contractor_id)
+            return render(request,'edit_con.html',{'dd':data})
+        else:
+            data=DETAILS.objects.get(D_id=Contractor_id)
+            return render(request,'edit1_con.html',{'dd':data})
 
-def edit_wor(request,Worker_id):
+def edit_wor(request,Worker_id,status):
     if 'uid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
-        data=DETAILS.objects.get(D_id=Worker_id)
-        return render(request,'edit_wor.html',{'dd':data})
+        if status == 'not verified':
+            data=DETAILS.objects.get(D_id=Worker_id)
+            return render(request,'edit_wor.html',{'dd':data})
+        else:
+            data=DETAILS.objects.get(D_id=Worker_id)
+            return render(request,'edit1_wor.html',{'dd':data})
 
 def edit_com(request,Company_id):
     if 'uid' not in request.session:
@@ -346,10 +448,45 @@ def edit_com(request,Company_id):
         return render(request,'edit_com.html',{'dd':data})
 
 def reject_cus(request,D_id):
-        d=CUSTOMER_DETAILS.objects.get(Customer_id=D_id)
-        d.status="rejected"
-        d.save()
-        return redirect('/login_admin/')
+    d=CUSTOMER_DETAILS.objects.get(Customer_id=D_id)
+    id=d.cu_name
+    d.status="rejected"
+    d.save()
+    dat=LOGIN.objects.get(username=id)
+    dat.delete()
+    return redirect('/login_admin/')
+
+def reject_com(request,D_id):
+    d=COMPANY_DETAILS.objects.get(Company_id=D_id)
+    id=d.co_name
+    d.status="rejected"
+    d.save()
+    dat=LOGIN.objects.get(username=id)
+    dat.delete()
+    return redirect('/login_admin/')
+
+
+def approve1_cus(request,D_id):
+    data=CUSTOMER_DETAILS.objects.get(Customer_id=D_id)
+    data.status="verified"
+    data.save()
+    dat=LOGIN()
+    dat.username=data.cu_name
+    dat.password=data.password
+    dat.type='customer'
+    dat.save()
+    return redirect('/login_admin/')
+
+def approve1_com(request,D_id):
+    data=COMPANY_DETAILS.objects.get(Company_id=D_id)
+    data.status="verified"
+    data.save()
+    dat=LOGIN()
+    dat.username=data.co_name
+    dat.password=data.password
+    dat.type='company'
+    dat.save()
+    return redirect('/login_admin/')
     
 def approve_con(request,D_id):
     data=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
@@ -369,6 +506,23 @@ def approve_con(request,D_id):
     send_mail( subject, message, email_from, recipient_list )
     return redirect('/login_admin/')
 
+def approve1_con(request,D_id):
+    data=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
+    d=DETAILS.objects.get(D_id=D_id)
+    data.status="verified"
+    data.save()
+    dat=LOGIN()
+    dat.username=data.c_name
+    dat.password=data.password
+    dat.type="contractor"
+    dat.save()
+    # subject = 'Verification'
+    # message = f'Your Verification is completed\n Please Login With Your Credentials'
+    # email_from = myapp.settings.EMAIL_HOST_USER
+    # recipient_list = [email]
+    # send_mail( subject, message, email_from, recipient_list )
+    return redirect('/login_admin/')
+
 def reject_con(request,D_id):
     d=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
     det=DETAILS.objects.get(D_id=D_id)
@@ -380,6 +534,20 @@ def reject_con(request,D_id):
     email_from = myapp.settings.EMAIL_HOST_USER
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
+    return redirect("/login_admin/")
+
+def reject1_con(request,D_id):
+    d=CONTRACTOR_DETAILS.objects.get(Contractor_id=D_id)
+    id=d.c_name
+    d.status="rejected"
+    d.save()
+    dat=LOGIN.objects.get(username=id)
+    dat.delete()
+    # subject = 'Verification'
+    # message = f'Unfortunately justclick Was Unable to Verify, That Your a Contractor'
+    # email_from = myapp.settings.EMAIL_HOST_USER
+    # recipient_list = [email]
+    # send_mail( subject, message, email_from, recipient_list )
     return redirect("/login_admin/")
 
 def approve_wor(request,D_id):
@@ -400,6 +568,23 @@ def approve_wor(request,D_id):
     send_mail( subject, message, email_from, recipient_list )
     return redirect('/login_admin/')
 
+def approve1_wor(request,D_id):
+    data=WORKER_DETAILS.objects.get(Worker_id=D_id)
+    d=DETAILS.objects.get(D_id=D_id)
+    data.status="verified"
+    data.save()
+    dat=LOGIN()
+    dat.username=data.U_name
+    dat.password=data.password
+    dat.type="worker"
+    dat.save()
+    # subject = 'Verification'
+    # message = f'Your Verification is completed\n Please Login With Your Credentials'
+    # email_from = myapp.settings.EMAIL_HOST_USER
+    # recipient_list = [email]
+    # send_mail( subject, message, email_from, recipient_list )
+    return redirect('/login_admin/')
+
 def reject_wor(request,D_id):
     d=WORKER_DETAILS.objects.get(Worker_id=D_id)
     det=DETAILS.objects.get(D_id=D_id)
@@ -413,14 +598,23 @@ def reject_wor(request,D_id):
     send_mail( subject, message, email_from, recipient_list )
     return redirect('/login_admin/')
 
-def reject_com(request,D_id):
-    d=COMPANY_DETAILS.objects.get(Company_id=D_id)
+def reject1_wor(request,D_id):
+    d=WORKER_DETAILS.objects.get(Worker_id=D_id)
+    id=d.U_name
     d.status="rejected"
     d.save()
+    dat=LOGIN.objects.get(username=id)
+    dat.delete()
+    # subject = 'Verification'
+    # message = f'Unfortunately justclick Was Unable to Verify, That Your a Worker'
+    # email_from = myapp.settings.EMAIL_HOST_USER
+    # recipient_list = [email]
+    # send_mail( subject, message, email_from, recipient_list )
     return redirect('/login_admin/')
 
-# logout views
 
+# logout views ````````````````````````````````````````````````````````````````````````````````````````````
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout(request):
     if 'uid' not in request.session:
         messages.success(request, 'Session Expired Login Again')
@@ -429,6 +623,8 @@ def logout(request):
         request.session['uid']=""
         del request.session['uid']
         return redirect('/index/')
+
+@cache_control(no_cache=True, must_revalidate=True, no_store=True)
 def logout_worker(request):
     if 'woid' not in request.session:
         messages.success(request, 'Session Expired Login Again')
@@ -522,17 +718,6 @@ def del_shop(request,Shop_id):
     return redirect("/show_shops/")
 
 # worker modules
-def login_worker(request):
-    if 'woid' not in request.session:
-        messages.success(request, 'Session Expired')
-        return redirect('/login/')
-    else:
-        usid=request.session['woid']
-        d=WORKER_DETAILS.objects.get(U_name=usid)
-        wor_id=d.Worker_id
-        details=DETAILS.objects.get(D_id=wor_id)
-        dat=Photos.objects.filter(userid=wor_id).order_by('-id')[:5]
-        return render(request,"worker_h.html",{"data":d,"p":dat,"w":details})
 
 def add_image(request):
     if 'woid' not in request.session:
@@ -559,6 +744,39 @@ def show_image(request,Worker_id):
         d=Photos.objects.filter(userid=Worker_id)
         return render(request,"show_image.html",{"data":d})
 
+def worker_edit(request,Worker_id):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=DETAILS.objects.get(D_id=Worker_id)
+        f=WORKER_DETAILS.objects.get(Worker_id=Worker_id)
+        return render(request,"worker_edit.html",{'d':d,'f':f})
+
+def update_worker(request):
+    unm=request.POST.get('uname')
+    d=WORKER_DETAILS.objects.get(U_name=unm)
+    id=d.Worker_id
+    data=DETAILS.objects.get(D_id=id)
+    data.Address=request.POST.get('address')
+    d.city=request.POST.get('city')
+    fs=FileSystemStorage()
+    Photo=request.FILES['pimage']
+    fn=fs.save(Photo.name,Photo)
+    uploaded_file_url=fs.url(fn)
+    d.profile_image=uploaded_file_url
+    data.Ph_no=request.POST.get('phno')
+    em=request.POST.get('email')
+    data.Email=em
+    data.save()
+    d.save()
+    subject = 'Profile Update'
+    message = f'Details Updated Succesfully'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [em]
+    send_mail( subject, message, email_from, recipient_list )
+    return redirect('/login_worker/')
+
 def message(request):
     m=Messages()
     m.Name=request.POST.get('name')
@@ -573,7 +791,397 @@ def message(request):
     recipient_list = [email]
     send_mail( subject, message, email_from, recipient_list )
     return redirect("/index/")
-
-
+def profile(request):
+    if request.method == 'GET':
+           u_id = request.GET['post_id']
+           uname = WORKER_DETAILS.objects.get(U_name=u_id)
+           data={'pr':uname}
+           return HttpResponse('not working')        
+    
+    else:
+           return HttpResponse("Request method is not a GET")
         
+class dataview(View):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            Det=DETAILS.objects.all()
+            det_ser=serializers.serialize('json',Det)
+            return JsonResponse(det_ser,safe=False)
+        return JsonResponse({'message':'Wrong validation'})
+
+def user_search(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        if request.method == 'POST':
+            search_str=json.loads(request.body).get('searchtxt')
+            type=json.loads(request.body).get('typeofwork')
+
+            result=WORKER_DETAILS.objects.filter(Fd_of_work=type) & (WORKER_DETAILS.objects.filter(city__istartswith=search_str) | WORKER_DETAILS.objects.filter(pincode__istartswith=search_str))
+            data=result.values()
+            return JsonResponse(list(data), safe=False)
+
+def type_search(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        if request.method == 'POST':
+            search_str=json.loads(request.body).get('searchtxt')
+            
+            result=WORKER_DETAILS.objects.filter(Fd_of_work__istartswith=search_str) 
+            data=result.values()
+            return JsonResponse(list(data), safe=False)
+
+def place_search(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        if request.method == 'POST':
+            search_str=json.loads(request.body).get('searchtxt')
+
+            result=WORKER_DETAILS.objects.filter(city__istartswith=search_str) 
+            data=result.values()
+            return JsonResponse(list(data), safe=False)
+
+def pin_search(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        if request.method == 'POST':
+            search_str=json.loads(request.body).get('searchtxt')
+
+            result=WORKER_DETAILS.objects.filter(pincode__istartswith=search_str) 
+            data=result.values()
+            return JsonResponse(list(data), safe=False)
+
+def view_user(request):
+    if request.method == 'POST':
+        name=json.loads(request.body).get('uname')
+
+        w=WORKER_DETAILS.objects.get(U_name=name)
+        id=w.Worker_id
+        d=DETAILS.objects.filter(D_id=id)
+        data=d.values()
+        return JsonResponse(list(data), safe=False)
+        
+
+
+def view_search(request,D_id):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        c=request.session['cusid']
+        f=WORKER_DETAILS.objects.filter(Worker_id=D_id)
+        return render(request, 'invite_worker.html',{'t':f,'c':c})
+
+
+    
+
+def add_work_invite(request):
+    w=work_invite()
+    cusid=request.POST.get('cid')
+    d=CUSTOMER_DETAILS.objects.get(cu_name=cusid)
+    d_id=d.Customer_id
+    dat=DETAILS.objects.get(D_id=d_id)
+    email=dat.Email
+    w.Type=request.POST.get('type')
+    w.Desc=request.POST.get('desc')
+    w.Loc=request.POST.get('loc')
+    w.Worker_id=request.POST.get('wid')
+    w.Customer_id=d_id
+    w.Status="0"
+    w.save()
+    subject = 'Work Invite'
+    message = f'Work Invite Successfully send'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [email]
+    send_mail(subject, message, email_from, recipient_list)
+    return redirect('/login_cus/')
+
+def winvite_accept(request,id):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        w=work_invite.objects.get(id=id)
+        w.Status="1"
+        did=w.Customer_id
+        w.save()
+        d=DETAILS.objects.get(D_id=did)
+        name=d.Name
+        email=d.Email
+        subject = 'Work Invite'
+        message = f'Your Work Invite is Accepted By'
+        email_from = myapp.settings.EMAIL_HOST_USER
+        recipient_list = [email]
+        send_mail(subject, message, email_from, recipient_list)
+        return redirect('/login_worker/')
+
+def winvite_reject(request,id):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        w=work_invite.objects.get(id=id)
+        w.Status="2"
+        did=w.Customer_id
+        w.save()
+        d=DETAILS.objects.get(D_id=did)
+        name=d.Name
+        email=d.Email
+        subject = 'Work Invite'
+        message = f'Your Work Invite is Rejected By'
+        email_from = myapp.settings.EMAIL_HOST_USER
+        recipient_list = [email]
+        send_mail(subject, message, email_from, recipient_list)
+        return redirect('/login_worker/')
+
+def winvite_view(request,id):
+    if 'woid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        w=work_invite.objects.get(id=id)
+        did=w.Customer_id
+        d=DETAILS.objects.get(D_id=did)
+        return render(request,'winvite_view.html',{'d':d})
+
+def worker_back(request):
+    return redirect('/login_worker/')
+
+def view_winvite(request,uname):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        w=CUSTOMER_DETAILS.objects.get(cu_name=uname)
+        id=w.Customer_id
+        d=work_invite.objects.filter(Customer_id=id)
+        return render(request,'view_winvite.html',{'d':d})
+
+def add_project(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        cusid=request.session['cusid']
+        data=CUSTOMER_DETAILS.objects.get(cu_name=cusid)
+        cid=data.Customer_id
+        d=TYPE_OF_WORK.objects.all()
+        city=CONTRACTOR_DETAILS.objects.all().values('city').distinct()
+        return render(request,'add_project.html',{'d':d,'city':city,'cid':cid})
+
+def contractor_edit(request,Contractor_id):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=DETAILS.objects.get(D_id=Contractor_id)
+        f=CONTRACTOR_DETAILS.objects.get(Contractor_id=Contractor_id)
+        return render(request,"contractor_edit.html",{'d':d,'f':f})
+
+def update_contractor(request):
+    unm=request.POST.get('uname')
+    d=CONTRACTOR_DETAILS.objects.get(c_name=unm)
+    id=d.Contractor_id
+    data=DETAILS.objects.get(D_id=id)
+    data.Address=request.POST.get('address')
+    d.city=request.POST.get('city')
+    fs=FileSystemStorage()
+    Photo=request.FILES['pimage']
+    fn=fs.save(Photo.name,Photo)
+    uploaded_file_url=fs.url(fn)
+    d.profile_image=uploaded_file_url
+    data.Ph_no=request.POST.get('phno')
+    em=request.POST.get('email')
+    data.Email=em
+    data.save()
+    d.save()
+    subject = 'Profile Update'
+    message = f'Details Updated Succesfully'
+    email_from = myapp.settings.EMAIL_HOST_USER
+    recipient_list = [em]
+    send_mail( subject, message, email_from, recipient_list )
+    return redirect('/login_con/')
+
+def type_select(request):
+    if request.method == 'POST':
+        search_str=json.loads(request.body).get('type')
+            
+        result=suggestions.objects.filter(Type=search_str) 
+        data=result.values()
+        return JsonResponse(list(data), safe=False)
+
+def get_worker_id(request):
+    if request.method == 'POST':
+        search_str=json.loads(request.body).get('searchtxt')
+            
+        result=WORKER_DETAILS.objects.filter(Worker_id=search_str) 
+        data=result.values()
+        return JsonResponse(list(data), safe=False)
+
+def add_sugg(request):
+    if request.method == 'POST':
+        typeofwork=json.loads(request.body).get('type')
+        sugg=json.loads(request.body).get('sugg')
+        s=suggestions()
+        s.Type=typeofwork
+        s.suggestion=sugg
+        s.save()
+   
+        result=suggestions.objects.filter(Type=typeofwork) 
+        data=result.values()
+        return JsonResponse(list(data), safe=False)
+
+def save_project(request):
+    p=tbl_projects()
+    p.Customer_id=request.POST.get('userid')
+    p.p_name=request.POST.get('pname')
+    p.Type=request.POST.get('fieldofwork')
+    p.D_start=request.POST.get('sdate')
+    p.D_end=request.POST.get('edate')
+    p.lat=request.POST.get('lat')
+    p.lon=request.POST.get('lon')
+    p.Loc=request.POST.get('city')
+    fs=FileSystemStorage()
+    Photo=request.FILES['pimage']
+    fn=fs.save(Photo.name,Photo)
+    uploaded_file_url=fs.url(fn)
+    p.Plan_img=uploaded_file_url
+    p.Suggestion=request.POST.get('user_suggestion')
+    p.remark=request.POST.get('remarks')
+    p.save()
+    messages.success(request, 'Project Added Successfully')
+    return redirect('/login_cus/')
+
+def view_project(request):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        cusid=request.session['cusid']
+        d=CUSTOMER_DETAILS.objects.get(cu_name=cusid)
+        cid=d.Customer_id
+        p=tbl_projects.objects.filter(Customer_id=cid).order_by('id')
+        return render(request, 'view_project.html',{'p':p})
+
+def show_contractor(request):
+    if request.method == 'POST':
+        pid=json.loads(request.body).get('id')
+        p=tbl_projects.objects.get(id=pid)
+        c=p.Loc
+        type=p.Type
+
+        result=CONTRACTOR_DETAILS.objects.filter(Field_of_work=type) & (CONTRACTOR_DETAILS.objects.filter(city=c))
+        data=result.values()
+        return JsonResponse(list(data), safe=False)
+
+def invite_contractor(request):
+    if request.method == 'POST':
+        cid=json.loads(request.body).get('id')
+        cusid=json.loads(request.body).get('cusid')
+        con=CONTRACTOR_DETAILS.objects.get(Contractor_id=cid)
+        d=DETAILS.objects.get(D_id=cid)
+        email=d.Email
+        pid=json.loads(request.body).get('pid')
+        data=idgenerator.objects.get(id=1)
+
+        cinvite=tbl_contractor_invite()
+        cinvite.Project_id=pid
+        cinvite.Contractor_id=cid
+        cinvite.status='0'
+        con.p_sts_id=cusid
+        con.save()
+        cinvite.save()
+        subject = 'Invitation'
+        message = f'You got a Quoatation Invitation.'
+        email_from = myapp.settings.EMAIL_HOST_USER
+        recipient_list = [email]
+        send_mail( subject, message, email_from, recipient_list )
+            
+        result=tbl_contractor_invite.objects.filter(Project_id=pid)
+        data=result.values()
+        return JsonResponse(list(data), safe=False)
+
+def view_invite_con(request,id):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        p=tbl_contractor_invite.objects.filter(status='0') & tbl_contractor_invite.objects.filter(Contractor_id=id)
+        list = []
+        for a in p:
+            pd=tbl_projects.objects.get(id=a.Project_id)
+            list.append(pd)
+        return render(request,'view_invite_con.html',{'p':p,'l':list,'id':id})
+
+def add_image_con(request):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=Photos()
+        d.userid=request.POST.get('userid')
+        d.Title=request.POST.get('title')
+        d.user_name=request.POST.get('uname')
+        Photo=request.FILES['photo']
+        fs=FileSystemStorage()
+        fn=fs.save(Photo.name,Photo)
+        uploaded_file_url=fs.url(fn)
+        d.image=uploaded_file_url
+        d.save()
+        messages.success(request, 'Image added Successfully')
+        return redirect('/login_con/')   
+def show_image_con(request,Contractor_id):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        d=Photos.objects.filter(userid=Contractor_id)
+        return render(request,"show_image_con.html",{"data":d})
+
+    
+def accept_invite_con(request,id,Customer_id,cid):
+    p=tbl_contractor_invite.objects.get(Contractor_id=cid, Project_id=id)
+    data=CONTRACTOR_DETAILS.objects.get(Contractor_id=cid)
+    name=data.c_name
+    d=DETAILS.objects.get(D_id=Customer_id)
+    email=d.Email
+    subject = 'Invitation'
+    message = f'{name} Just Accepted Your Invite \n He will Submit the quoatation Shortly'
+    email_from = myapp.settings.EMAIL_HOST_USER        
+    recipient_list = [email]
+    send_mail( subject, message, email_from, recipient_list )
+    p.status='1'
+    p.save()
+    return redirect('/login_con/')
+
+def reject_invite_con(request,id,Customer_id,cid):
+    p=tbl_contractor_invite.objects.get(Contractor_id=cid, Project_id=id)
+    data=CONTRACTOR_DETAILS.objects.get(Contractor_id=cid)
+    name=data.c_name
+    d=DETAILS.objects.get(D_id=Customer_id)
+    email=d.Email
+    subject = 'Invitation'
+    message = f'{name} Just Rejected Your Invite \n Dont Worry We got You Covered'
+    email_from = myapp.settings.EMAIL_HOST_USER        
+    recipient_list = [email]
+    send_mail( subject, message, email_from, recipient_list )
+    p.status='2'
+    p.save()
+    return redirect('/login_con/')
+
+def manage_project(request,id,pid):
+    if 'conid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        pd=tbl_projects.objects.get(id=pid)   
+        return render(request,'manage_project.html',{'pd':pd})
         

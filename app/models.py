@@ -1,6 +1,7 @@
 from email.headerregistry import Address
 from django.db import models
 from django.db.models.fields.related import ForeignKey
+from matplotlib.pyplot import cla
 
 #Create your models here.
 class LOGIN(models.Model):
@@ -41,6 +42,9 @@ class CONTRACTOR_DETAILS(models.Model):
     lic_no=models.CharField(max_length=20)
     status=models.CharField(max_length=30)
     password=models.CharField(max_length=15)
+    profile_image=models.CharField(max_length=100)
+    p_sts_id=models.CharField(max_length=10)
+
 
 
     class Meta:
@@ -56,6 +60,7 @@ class WORKER_DETAILS(models.Model):
     status=models.CharField(max_length=30)
     password=models.CharField(max_length=15)
     profile=models.CharField(max_length=30)
+    profile_image=models.CharField(max_length=100)
 
 
     class Meta:
@@ -81,7 +86,7 @@ class RATES(models.Model):
     Type_id=models.CharField(max_length=20)
     Rate=models.IntegerField()
     Rate_type=models.CharField(max_length=20)
-    M_name=models.CharField(max_length=10)
+    M_name=models.CharField(max_length=50)
     M_Rate=models.IntegerField()
 
 
@@ -108,6 +113,8 @@ class idgenerator(models.Model):
     tid=models.IntegerField()
     sid=models.IntegerField()
     did=models.IntegerField()
+    pid=models.IntegerField()
+    
 
     class Meta:
         db_table = "idgenerator"
@@ -138,3 +145,54 @@ class profiles(models.Model):
 
     class Meta:
         db_table = "PROFILES"
+
+class work_invite(models.Model):
+    Type=models.CharField(max_length=30)
+    Desc=models.CharField(max_length=100)
+    Loc=models.CharField(max_length=30)
+    Worker_id=models.CharField(max_length=20)
+    Customer_id=models.CharField(max_length=20)
+    Status=models.CharField(max_length=5)
+
+    class Meta:
+        db_table = "WORK_INVITE"
+
+
+
+class suggestions(models.Model):
+    Type=models.CharField(max_length=30)
+    suggestion=models.CharField(max_length=200)
+
+    class Meta:
+        db_table ="suggestions"
+
+class materials(models.Model):
+    M_name=models.CharField(max_length=50)
+    Type=models.CharField(max_length=30)
+
+    class Meta:
+        db_table ="materials"
+
+class tbl_projects(models.Model):
+    Customer_id=models.CharField(max_length=20)
+    p_name=models.CharField(max_length=50)
+    Type=models.CharField(max_length=50)
+    D_start=models.DateField()
+    D_end=models.DateField()
+    lat=models.FloatField(max_length=50)
+    lon=models.FloatField(max_length=50)
+    Loc=models.CharField(max_length=30)
+    Plan_img=models.CharField(max_length=100)
+    Suggestion=models.CharField(max_length=100)
+    remark=models.CharField(max_length=200)
+
+    class Meta:
+        db_table ="tbl_projects"
+
+class tbl_contractor_invite(models.Model):
+    Project_id=models.CharField(max_length=5)
+    Contractor_id=models.CharField(max_length=10)
+    status=models.CharField(max_length=5)
+
+    class Meta:
+        db_table ="tbl_contractor_invite"

@@ -1,0 +1,109 @@
+<html>
+    {%load static%}
+    <head>
+        <link rel="stylesheet" href="{% static 'css2/style1.css' %}">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'static1/css/popup3.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap-theme.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/fontAwesome.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/light-box.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <style>
+            .popupdiv {
+                display: none;
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                padding-top: 100px; /* Location of the box */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+            .divimg{
+                background-color: black;
+            }
+        </style>
+    </head>
+        <body>
+            <center>
+            <table class="responstable">
+                <tr>
+                    <th>Name</th>
+                    <th>Suggestions</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th colspan="2">Actions</th>
+                </tr>
+                <tr>
+            {% for i in l %}
+                <td>{{i.p_name}}</td>
+                <td>{{i.Suggestion}}</td>
+                <td>{{i.D_start}}</td>
+                <td>{{i.D_end}}</td>
+                <input type="hidden" value="{{i.lat}}" id="lat">
+                <input type="hidden" value="{{i.lon}}" id="lon">
+                <input type="hidden" value="{{i.Customer_id}}" id="cusid">
+                <td><div class="white-button button"><a href="#" id="show_loc" class="btn-view" data="{{i.id}}">Show Location</a></div></td>
+                <td><div class="white-button button"><a href="#" class="btn-view1">View More</a></div></td>
+                </tr>
+            
+            
+            <div class="popupdiv" id="userpopup">
+                <div class="popup">
+                    <img id="imgDino1" src="{% static 'static1/img/accept1.gif'%}" alt="" height="100" width="100">
+                    <h1>Accept To View More Details</h1><br><br>
+                    <a class="close" href="javascript:close()">&times;</a>
+                    <div class="content">
+                            <div class="col-sm-6">
+                                <a style="width: 100%" class="btn btn-success" href="/accept_invite_con/{{i.id}}/{{i.Customer_id}}/{{id}}" onclick="return acceptbtn();">Accept</a>
+                            </div>
+                            <div class="col-sm-6">
+                                <a style="width: 100%" class="btn btn-danger" href="/reject_invite_con/{{i.id}}/{{i.Customer_id}}/{{id}}" onclick="return rejectbtn();">Reject</a>
+                            </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            </table>
+
+            <div class="col-sm-12" align="center" id="mapholder">
+                <iframe id="google_map" width="100%" height="300" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.co.in?output=embed"></iframe><br>
+            </div><br>
+            <div>
+            <a href="/login_con/" class="btn btn-danger">Back</a>
+            </div>
+        </center>
+        </body>
+        <script>
+            $('.btn-view').click(function(){
+                var lat=document.getElementById('lat').value;
+                var lon=document.getElementById('lon').value;
+                var coords=lat+','+lon;
+                document.getElementById("google_map").setAttribute('src','https://maps.google.co.in/?q='+ coords +'&output=embed');
+
+            });
+            $('.btn-view1').click(function(){
+                document.getElementById("userpopup").style.display = "block";
+            });
+            function close() {
+            document.getElementById("userpopup").style.display = "none";
+            }
+            function acceptbtn(){
+                $('#imgDino1').attr('src',"{% static 'static1/img/accept.gif'%}");
+                return true;
+            }
+            function rejectbtn(){
+                $('#imgDino1').attr('src',"{% static 'static1/img/cross.gif'%}");
+                return true;
+            }
+        </script>
+</html>

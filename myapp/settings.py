@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'app',
+    'dajaxice',
+    'dajax',
 ]
 
 MIDDLEWARE = [
@@ -143,4 +145,27 @@ EMAIL_HOST_USER = 'justclickportal@gmail.com'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587 
 EMAIL_USE_TLS = True 
-EMAIL_HOST_PASSWORD = "9847538878"
+EMAIL_HOST_PASSWORD = "qfnyeioulqumrzzv"
+
+# # Ajax Things
+# TEMPLATE_LOADERS = (
+#    'django.template.loaders.filesystem.Loader',
+#    'django.template.loaders.app_directories.Loader',
+#    'django.template.loaders.eggs.Loader',
+# )
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#    'django.contrib.auth.context_processors.auth',
+#    'django.core.context_processors.debug',
+#    'django.core.context_processors.i18n',
+#    'django.core.context_processors.media',
+#    'django.core.context_processors.static',
+#    'django.core.context_processors.request',
+#    'django.contrib.messages.context_processors.messages'
+# )
+# STATICFILES_FINDERS = (
+#    'django.contrib.staticfiles.finders.FileSystemFinder',
+#    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#    'dajaxice.finders.DajaxiceFinder',
+# )
+
+# DAJAXICE_MEDIA_PREFIX = 'dajaxice'

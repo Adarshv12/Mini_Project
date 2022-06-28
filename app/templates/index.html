@@ -1,319 +1,335 @@
 {%load static%}
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>JustClick Portal</title>
-        
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-        <link rel="stylesheet" href="{% static 'static1/css/popup2.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/bootstrap.min.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/bootstrap-theme.min.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/fontAwesome.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/light-box.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
-        <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>JustClick Portal</title>
 
-        <script src="{% static 'static1/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js'%}"></script>
-        
-    </head>
-    
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <link rel="stylesheet" href="{% static 'static1/css/popup2.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/bootstrap.min.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/bootstrap-theme.min.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/fontAwesome.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/light-box.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
+
+    <script src="{% static 'static1/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js'%}"></script>
+    <style>
+        .popupdiv {
+            display: none;
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        .divimg {
+            background-color: black;
+        }
+    </style>
+</head>
+
 
 <body>
 
 
 
-        <header class="nav-down responsive-nav hidden-lg hidden-md">
-            <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav">
+    <header class="nav-down responsive-nav hidden-lg hidden-md">
+        <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav">
             <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <!--/.navbar-header-->
-            <div id="main-nav" class="collapse navbar-collapse">
-                <nav>
-                    <ul class="nav navbar-nav">
-                        <li><a href="#top">Home</a></li>
-                        <li><a href="#projects">Recent Works</a></li>
-                        <li><a href="#blog">Blog Entries</a></li>
-                        <li><a href="#contact">Contact Us</a></li>
-                    </ul>
-                </nav>
-            </div>
-        </header>
-
-        <div class="sidebar-navigation hidde-sm hidden-xs">
-            <div class="logo">
-                <a href="/index/">JUST CLICK<em></em></a>
-            </div>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <!--/.navbar-header-->
+        <div id="main-nav" class="collapse navbar-collapse">
             <nav>
-                <ul>
-                    <li>
-                        <a href="#top">
-                            <span class="rect"></span>
-                            <span class="circle"></span>
-                            Home
-                        </a>
-                    </li>
-                    
-                    <li>
-                        <a href="#projects">
-                            <span class="rect"></span>
-                            <span class="circle"></span>
-                            Recent Work
-                        </a>
-                    </li>
-                   
-                    <li>
-                        <a href="#blog">
-                            <span class="rect"></span>
-                            <span class="circle"></span>
-                            Recent Entries
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#contact">
-                            <span class="rect"></span>
-                            <span class="circle"></span>
-                            Contact Us
-                        </a>
-                    </li>
+                <ul class="nav navbar-nav">
+                    <li><a href="#top">Home</a></li>
+                    <li><a href="#projects">Recent Works</a></li>
+                    <li><a href="#blog">Blog Entries</a></li>
+                    <li><a href="#contact">Contact Us</a></li>
                 </ul>
             </nav>
-            <ul class="social-icons">
-                <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                <li><a href="#"><i class="fa fa-rss"></i></a></li>
-                <li><a href="#"><i class="fa fa-behance"></i></a></li>
-            </ul>
         </div>
+    </header>
 
-        <div class="slider">
-            <div class="Modern-Slider content-section" id="top">
-                <!-- Item -->
-                <div class="item item-1">
-                    <div class="img-fill">
+    <div class="sidebar-navigation hidde-sm hidden-xs">
+        <div class="logo">
+            <a href="/index/">JUST CLICK<em></em></a>
+        </div>
+        <nav>
+            <ul>
+                <li>
+                    <a href="#top">
+                        <span class="rect"></span>
+                        <span class="circle"></span>
+                        Home
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#projects">
+                        <span class="rect"></span>
+                        <span class="circle"></span>
+                        Recent Work
+                    </a>
+                </li>
+
+                <li>
+                    <a href="#blog">
+                        <span class="rect"></span>
+                        <span class="circle"></span>
+                        Design and Works
+                    </a>
+                </li>
+                <li>
+                    <a href="#contact">
+                        <span class="rect"></span>
+                        <span class="circle"></span>
+                        Contact Us
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <ul class="social-icons">
+            <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+            <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+            <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
+            <li><a href="#"><i class="fa fa-rss"></i></a></li>
+            <li><a href="#"><i class="fa fa-behance"></i></a></li>
+        </ul>
+    </div>
+
+    <div class="slider">
+        <div class="Modern-Slider content-section" id="top">
+            <!-- Item -->
+            <div class="item item-1">
+                <div class="img-fill">
                     <div class="image"></div>
                     <div class="info">
                         <div>
-                          <h1>Just Click Portal<br>For Customers</h1>
-                          <div class="white-button button">
-                              <a href="/signup/">Signup</a>
-                              <a href="/login/">login</a>
-                          </div>
-                        </div>
+                            <h1>Just Click Portal<br>For Customers</h1>
+                            <div class="white-button button">
+                                <a href="/signup/">Signup</a>
+                                <a href="/login/">login</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- // Item -->
-                <!-- Item -->
-                <div class="item item-2">
-                    <div class="img-fill">
-                        <div class="image"></div>
-                        <div class="info">
+            </div>
+            <!-- // Item -->
+            <!-- Item -->
+            <div class="item item-2">
+                <div class="img-fill">
+                    <div class="image"></div>
+                    <div class="info">
                         <div>
-                          <h1>Just Click Portal<br>For Contractors</h1>
-                          <div class="white-button button">
-                              <a href="/signup/">Signup</a>
-                              <a href="/login/">login</a>
-                          </div>
-                        </div>
+                            <h1>Just Click Portal<br>For Contractors</h1>
+                            <div class="white-button button">
+                                <a href="/signup/">Signup</a>
+                                <a href="/login/">login</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- // Item -->
-                <!-- Item -->
-                <div class="item item-3">
-                    <div class="img-fill">
-                        <div class="image"></div>
-                        <div class="info">
+            </div>
+            <!-- // Item -->
+            <!-- Item -->
+            <div class="item item-3">
+                <div class="img-fill">
+                    <div class="image"></div>
+                    <div class="info">
                         <div>
-                          <h1>Just Click Portal<br>For Workers</h1>
-                          <div class="white-button button">
-                              <a href="/signup/">Signup</a>
-                              <a href="/login/">login</a>
-                          </div>
-                        </div>
+                            <h1>Just Click Portal<br>For Workers</h1>
+                            <div class="white-button button">
+                                <a href="/signup/">Signup</a>
+                                <a href="/login/">login</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- // Item -->
+            </div>
+            <!-- // Item -->
+        </div>
+    </div>
+
+
+    <div class="page-content">
+        <div class="popupdiv" id="userpopup">
+            <div class="popup">
+                <img src="{% static 'static1/img/user_home.png'%}" alt="John" style="width:100%">
+                <h1 id="n_of_worker"></h1>
+                <a class="close" href="javascript:close()">&times;</a>
+                <div class="content">
+                    <h2 id="ph_of_worker"></h2>
+                    <p class="title" id="em_of_worker"></p>
+                </div>
+                <div style="margin: 10px 0;">
+                    <a href="#"><i class="fa fa-dribbble"></i></a>
+                    <a href="#"><i class="fa fa-twitter"></i></a>
+                    <a href="#"><i class="fa fa-linkedin"></i></a>
+                    <a href="#"><i class="fa fa-facebook"></i></a>
+                </div>
+                <p><a style="width: 100%" class="btn btn-primary" href="/login/">Contact</a></p>
             </div>
         </div>
 
+        <section id="projects" class="content-section">
+            <div class="section-heading">
+                <h1>Recent<br><em>Works</em></h1>
 
-        <div class="page-content">
-            
-            <section id="projects" class="content-section">
-                <div class="section-heading">
-                    <h1>Recent<br><em>Works</em></h1>
-                    
-                </div>
-                <div class="section-content">
-                    <div class="masonry">
-                        <div class="row">
-                            <div class="item">
-                                <div class="col-md-8">
-                                    <a href="{% static 'static1/img/portfolio_big_1.jpg'%}" data-lightbox="image"><img src="{% static 'static1/img/portfolio_1.jpg'%}" alt="image 1"></a>
-                                </div>
-                            </div>
-                            <div class="item second-item">
-                                <div class="col-md-4">
-                                    <a href="{% static 'static1/img/portfolio_big_2.jpg'%}" data-lightbox="image"><img src="{% static 'static1/img/portfolio_2.jpg'%}" alt="image 2"></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="col-md-4">
-                                    <a href="{% static 'static1/img/portfolio_big_3.jpg'%}" data-lightbox="image"><img src="{% static 'static1/img/portfolio_3.jpg'%}" alt="image 3"></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="col-md-4">
-                                    <a href="{% static 'static1/img/portfolio_big_4.jpg'%}" data-lightbox="image"><img src="{% static 'static1/img/portfolio_4.jpg'%}" alt="image 4"></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="col-md-8">
-                                    <a href="{% static 'static1/img/portfolio_big_5.jpg'%}" data-lightbox="image"><img src="{% static 'static1/img/portfolio_5.jpg'%}" alt="image 5"></a>
-                                </div>
+            </div>
+            <div class="section-content">
+                <div class="masonry">
+                    <div class="row">
+                        {% for i in dc %}
+                        <div class="item">
+                            <div class="col-md-4">
+                                <a href="{{i.image}}" data-lightbox="image"><img src="{{i.image}}" alt="image 2"></a>
                             </div>
                         </div>
+                        {% endfor %}
                     </div>
-                </div>            
-            </section>
-            
-            <section id="blog" class="content-section">
-                <div class="section-heading">
-                    <h1>Recent<br><em>Entries</em></h1>
-                    
                 </div>
-                <div class="section-content">
-                    <div class="tabs-content">
-                        <div class="wrapper">
-                            <ul class="tabs clearfix" data-tabgroup="first-tab-group">
-                                <li><a href="#tab1" class="active">February 2022</a></li>
-                                <li><a href="#tab2">January 2022</a></li>
-                                <li><a href="#tab3">December 2021</a></li>
-                                <li><a href="#tab4">November 2021</a></li>
-                            </ul>
-                            <section id="first-tab-group" class="tabgroup">
-                                <div id="tab1">
-                                    {% for i in det %}
-                                    {% for j in data %}
-                                    {% if i.D_id == j.userid %}
-                                    <ul>
-                                        <li>
-                                            <div class="item" style>
-                                                <img src="{{j.image}}" alt="" height="230" width="300">
-                                                <div class="text-content">
-                                                    <h4>By {{j.user_name}}</h4>
-                                                    <span>{{j.date}}</span>
-                                                    <p>Nam vel egestas nisi. Nullam lobortis magna at enim venenatis luctus. Nam finibus, mauris eu dictum iaculis, dolor tortor cursus qdfsdgsdgdfsgsgsgdsfg  sda    sfdhg dhsd hfg f d</p>
-                                                    <div class="box">
-                                                        <a class="button1" href="#popup{{i.D_id}}">View Profile</a>
-                                                    </div>
-                                                    <div id="popup{{i.D_id}}" class="overlay">
-                                                        <div class="popup">
-                                                            <img src="{% static 'static1/img/user_home.png'%}" alt="John" style="width:100%">
-                                                            <h1>{{i.Name}}</h1>
-                                                            <a class="close" href="#">&times;</a>
-                                                            <div class="content">
-                                                                <h2>{{i.Ph_no}}</h2>
-                                                                <p class="title">{{i.Email}}</p>
-                                                                <p>{{i.Address}}</p>
-                                                            </div>
-                                                            <div style="margin: 10px 0;">
-                                                                <a href="#"><i class="fa fa-dribbble"></i></a>   
-                                                                <a href="#"><i class="fa fa-twitter"></i></a>  
-                                                                <a href="#"><i class="fa fa-linkedin"></i></a>  
-                                                                <a href="#"><i class="fa fa-facebook"></i></a>  
-                                                            </div>
-                                                            <p><a style="width: 100%" class="btn btn-primary" href="/login/">Contact</a></p>
-                                                        </div>
-                                                    </div>
-                                                    
+            </div>
+        </section>
+
+        <section id="blog" class="content-section">
+            <div class="section-heading">
+                <h1>Design<br> &<em> Works</em></h1>
+
+            </div>
+            <div class="section-content">
+                <div class="tabs-content">
+                    <div class="wrapper">
+                        <ul class="tabs clearfix" data-tabgroup="first-tab-group">
+                            <li><a href="#tab1" class="active">February 2022</a></li>
+                            <li><a href="#tab2">January 2022</a></li>
+                            <li><a href="#tab3">December 2021</a></li>
+                            <li><a href="#tab4">November 2021</a></li>
+                        </ul>
+                        <section id="first-tab-group" class="tabgroup">
+                            <div id="tab1">
+                                {% for i in det %}
+                                {% for j in data %}
+                                {% if i.D_id == j.userid %}
+                                <div class="row">
+                                    <div class="col-sm-4">
+                                        <div class="item">
+                                            <img src="{{j.image}}" alt="" height="230" width="300">
+                                            <div class="text-content">
+                                                <h4>By {{j.user_name}}</h4>
+                                                <input type="hidden" value="{{j.user_name}}" id="username">
+                                                <span>{{j.date}}</span>
+                                                <!-- <p >Nam vel egestas nisi. Nullam lobortis magna at enim venenatis luctus. Nam finibus, mauris eu dictum iaculis, dolor tortor cursus qdfsdgsdgdfsgsgsgdsfg  sda    sfdhg dhsd hfg f d</p> -->
+                                                <div class="white-button button">
+                                                    <a href="#" class="btn-view" id="view_profile"
+                                                        data="{{j.user_name}}">View Profile
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                        <br>
+                                    </div>
                                     {% endif %}
                                     {% endfor %}
                                     {% endfor %}
-                                        
+
                                 </div>
-                            </section> 
-                        </div>
+                        </section>
                     </div>
                 </div>
-            </section>
-            <section id="contact" class="content-section">
-                <!-- <div id="map">
+            </div>
+        </section>
+        <section id="contact" class="content-section">
+            <!-- <div id="map">
                 
                 	
                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1197183.8373802372!2d-1.9415093691103689!3d6.781986417238027!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xfdb96f349e85efd%3A0xb8d1e0b88af1f0f5!2sKumasi+Central+Market!5e0!3m2!1sen!2sth!4v1532967884907" width="100%" height="400px" frameborder="0" style="border:0" allowfullscreen></iframe>
                 </div> -->
-                <div id="contact-content">
-                    <div class="section-heading">
-                        <h1>Contact<br><em>Just Click</em></h1>
-                        
-                        
-                    </div>
-                    <div class="section-content">
-                        <form id="contact" action="/message/" method="post" name="f">
-                            {% csrf_token %}
-                            <div class="row">
-                                <div class="col-md-4">
-                                  <fieldset>
-                                    <input name="name" type="text" class="form-control" id="name" placeholder="Your name..." required="" required="">
-                                  </fieldset>
-                                </div>
-                                <div class="col-md-4">
-                                  <fieldset>
-                                    <input name="email" type="email" class="form-control" id="email" placeholder="Your email..." required="" required="">
-                                  </fieldset>
-                                </div>
-                                 <div class="col-md-4">
-                                  <fieldset>
-                                    <input name="subject" type="text" class="form-control" id="subject" placeholder="Subject..." required="">
-                                  </fieldset>
-                                </div>
-                                <div class="col-md-12">
-                                  <fieldset>
-                                    <textarea name="message" rows="6" class="form-control" id="message" placeholder="Your message..." required=""></textarea>
-                                  </fieldset>
-                                </div>
-                                <div class="col-md-12">
-                                  <fieldset>
-                                    <button type="submit" id="form-submit" class="btn">Send Message Now</button>
-                                  </fieldset>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+            <div id="contact-content">
+                <div class="section-heading">
+                    <h1>Contact<br><em>Just Click</em></h1>
+
+
                 </div>
-            </section>
-            <!-- <section class="footer">
+                <div class="section-content">
+                    <form id="contact" action="/message/" method="post" name="f">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <fieldset>
+                                    <input name="name" type="text" class="form-control" id="name"
+                                        placeholder="Your name..." required="" required="">
+                                </fieldset>
+                            </div>
+                            <div class="col-md-4">
+                                <fieldset>
+                                    <input name="email" type="email" class="form-control" id="email"
+                                        placeholder="Your email..." required="" required="">
+                                </fieldset>
+                            </div>
+                            <div class="col-md-4">
+                                <fieldset>
+                                    <input name="subject" type="text" class="form-control" id="subject"
+                                        placeholder="Subject..." required="">
+                                </fieldset>
+                            </div>
+                            <div class="col-md-12">
+                                <fieldset>
+                                    <textarea name="message" rows="6" class="form-control" id="message"
+                                        placeholder="Your message..." required=""></textarea>
+                                </fieldset>
+                            </div>
+                            <div class="col-md-12">
+                                <fieldset>
+                                    <button type="submit" id="form-submit" class="btn">Send Message Now</button>
+                                    <!-- <button type="" id="btnprofile" class="btnprofile"></button> -->
+                                </fieldset>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+        <!-- <section class="footer">
                 <p>Copyright &copy; 2019 Company Name 
                 
                 . Design: TemplateMo</p>
             </section> -->
-        </div>
+    </div>
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="{% static 'static1/js/vendor/jquery-1.11.2.min.js'%}"><\/script>')</script>
+    <script>window.jQuery || document.write('<script src="{% static 'static1 / js / vendor / jquery - 1.11.2.min.js'%}"><\/script>')</script>
 
     <script src="{% static 'static1/js/vendor/bootstrap.min.js'%}"></script>
-    
+
     <script src="{% static 'static1/js/plugins.js'%}"></script>
     <script src="{% static 'static1/js/main.js'%}"></script>
 
@@ -324,11 +340,11 @@
         var delta = 5;
         var navbarHeight = $('header').outerHeight();
 
-        $(window).scroll(function(event){
+        $(window).scroll(function (event) {
             didScroll = true;
         });
 
-        setInterval(function() {
+        setInterval(function () {
             if (didScroll) {
                 hasScrolled();
                 didScroll = false;
@@ -337,28 +353,68 @@
 
         function hasScrolled() {
             var st = $(this).scrollTop();
-            
+
             // Make sure they scroll more than delta
-            if(Math.abs(lastScrollTop - st) <= delta)
+            if (Math.abs(lastScrollTop - st) <= delta)
                 return;
-            
+
             // If they scrolled down and are past the navbar, add class .nav-up.
             // This is necessary so you never see what is "behind" the navbar.
-            if (st > lastScrollTop && st > navbarHeight){
+            if (st > lastScrollTop && st > navbarHeight) {
                 // Scroll Down
                 $('header').removeClass('nav-down').addClass('nav-up');
             } else {
                 // Scroll Up
-                if(st + $(window).height() < $(document).height()) {
+                if (st + $(window).height() < $(document).height()) {
                     $('header').removeClass('nav-up').addClass('nav-down');
                 }
             }
-            
+
             lastScrollTop = st;
+        }
+        $('.btn-view').click(function () {
+            const name = $(this).attr("data");
+            console.log("data is", name);
+            fetch("/view_user", {
+                body: JSON.stringify({ uname: name }),
+                method: "POST",
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log("data", data)
+                    data.forEach((item) => {
+                        document.getElementById('n_of_worker').innerHTML = item.Name;
+                        document.getElementById('ph_of_worker').innerHTML = item.Ph_no;
+                        document.getElementById('em_of_worker').innerHTML = item.Email;
+                    });
+                });
+            document.getElementById("userpopup").style.display = "block";
+        });
+        function close() {
+            document.getElementById("userpopup").style.display = "none";
         }
     </script>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        $('.btn-sample').click(function () {
+            var data;
+            data = $(this).attr("data");
+            $.ajax(
+                {
+                    type: "GET",
+                    url: "/profile",
+                    data: {
+                        post_id: data
+                    },
+                    success: function (data) {
+                        $('.btnprofile').text(data.city)
+                    }
+                })
+        });
+    </script>
 
 </body>
+
 </html>

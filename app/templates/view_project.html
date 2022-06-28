@@ -1,0 +1,174 @@
+<html>
+    {%load static%}
+    <head>
+        <link rel="stylesheet" href="{% static 'css2/style1.css' %}">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <link rel="stylesheet" href="{% static 'static1/css/popup3.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/bootstrap-theme.min.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/fontAwesome.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/light-box.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
+        <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <style>
+            .popupdiv {
+                display: none;
+                position: fixed; /* Stay in place */
+                z-index: 1; /* Sit on top */
+                padding-top: 100px; /* Location of the box */
+                left: 0;
+                top: 0;
+                width: 100%; /* Full width */
+                height: 100%; /* Full height */
+                overflow: auto; /* Enable scroll if needed */
+                background-color: rgb(0,0,0); /* Fallback color */
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+            .divimg{
+                background-color: black;
+            }
+        </style>
+    </head>
+        <body>
+            <center>
+            <table class="responstable">
+                <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th colspan="2">Actions</th>
+                </tr>
+                <tr>
+            {% for i in p %}
+                <td>{{i.p_name}}</td>
+                <td>{{i.Type}}</td>
+                <td>{{i.D_start}}</td>
+                <td>{{i.D_end}}</td>
+                <input type="hidden" value="{{i.Customer_id}}" id="cusid">
+                <td><div class="white-button button"><a href="#" id="show_click" class="btn-view" id="view_search" data="{{i.id}}">Show Contractors</a></div></td>
+                <td><div class="white-button button"><a href="#">Delete</a></div></td>
+                </tr>
+            {% endfor %}
+            </table>
+
+            <div class="popupdiv" id="userpopup">
+                <div class="popup">
+                    <!-- <img src="{% static 'static1/img/user_home.png'%}" alt="John" style="width:100%"> -->
+                    
+                    <a class="close" href="javascript:close()">&times;</a>
+                    <div class="content">
+                        <div class="form-group">
+                            <label for="email">Search</label>
+                            <input type="text" class="form-control" id="user-search" placeholder="search by pincode">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="table_output">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Photo</th>
+                            <th>User_id</th>
+                            <th>City</th>
+                            <th>Pincode</th>
+                            <th>Field of work</th>
+                            <th>Experience</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-body">
+
+                    </tbody>
+                </table>
+                <a href="/login_cus/" class="btn btn-danger">Back</a>
+            </div>
+
+        </center>
+        </body>
+        <script>
+            const tableOutput=document.querySelector(".table_output");
+            tableOutput.style.display = "none";
+            const tbody=document.querySelector(".table-body");
+            $('.btn-view').click(function(){
+            const id = $(this).attr("data");
+            console.log(id);
+            var cid=document.getElementById('cusid').value;
+            console.log(cid);
+            tbody.innerHTML="";
+            fetch("/show-contractor",{
+                body: JSON.stringify({id:id}),
+                method: "POST",
+            })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("data is",data);
+                tableOutput.style.display = "block";
+                if(data.length === 0){
+                    tableOutput.innerHTML = "No Contractors found";
+                }
+                else{
+                    data.forEach((item) => {
+                        var psid=item.p_sts_id;
+                        console.log(psid,cid)
+                        if(psid == cid){
+                            tbody.innerHTML += `
+                            <tr>
+                            <td><img src="${item.profile_image}" height="50" width="50"></td>
+                            <td> ${item.c_name}</td>
+                            <td> ${item.city}</td>
+                            <td> ${item.pincode}</td>
+                            <td> ${item.Field_of_work}</td>
+                            <td> ${item.exp}</td>
+                            <input type="hidden">
+                            <td> <button type="button" class="btn btn-success"> Invited </button></td>
+                            </tr>`
+                        }
+                        else{
+                        tbody.innerHTML += `
+                            <tr>
+                            <td><img src="${item.profile_image}" height="50" width="50"></td>
+                            <td> ${item.c_name}</td>
+                            <td> ${item.city}</td>
+                            <td> ${item.pincode}</td>
+                            <td> ${item.Field_of_work}</td>
+                            <td> ${item.exp}</td>
+                            <input type="hidden">
+                            <td> <button type="button" class="btn btn-primary" id="${item.Contractor_id}" onclick="return invite_contractor(document.getElementById('${item.Contractor_id}').id,${id})"> Invite </button></td>
+                            </tr>`
+                        }
+                    });
+                }
+            });
+            });
+            function close(){
+            document.getElementById("userpopup").style.display = "none";
+            }
+            function invite_contractor(id,pid){
+                
+                var cid=document.getElementById('cusid').value;
+                console.log("pid",pid);
+                console.log("id",id);
+                fetch("/invite-contractor",{
+                    body: JSON.stringify({id: id, pid: pid, cusid:cid}),
+                    method: "POST",
+                })
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log(data);
+                    data.forEach((item) =>{
+                        var cid=item.Contractor_id;
+                        document.getElementById(cid).setAttribute("class","btn btn-success")
+                        document.getElementById(cid).innerHTML = 'Invited';
+                    })
+                });
+
+            }
+
+        </script>
+</html>

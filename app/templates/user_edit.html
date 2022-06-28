@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Edit Customer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+  <script type="text/javascript">
+    function mg()
+    {
+        var p=f.phno.value.length;
+        if(p!=10)
+        {
+            alert("Phone number should contain 10 digits");
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+    </script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Enter Details</h2>
+  <form class="form-horizontal" action="/update_user/" method="post" name="f">
+      {% csrf_token %}
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">username</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" value="{{f.cu_name}}" name="uname" readonly>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="control-label col-sm-2">Address</label>
+        <div class="col-sm-10">
+          <textarea type="text" class="form-control" value="" name="address">{{d.Address}}</textarea>
+        </div>
+      </div>
+    <div class="form-group">
+      <label class="control-label col-sm-2">Phone NO</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" value="{{d.Ph_no}}" name="phno">
+      </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Email</label>
+        <div class="col-sm-10">
+          <input type="email" class="form-control" id="email" value="{{d.Email}}" name="email">
+        </div>
+      </div>
+    <div class="form-group">        
+      <div class="col-sm-offset-2 col-sm-10">
+        <input type="submit" value="Save" class="btn btn-primary" onclick="return mg()">
+      </div>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>

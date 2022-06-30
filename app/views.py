@@ -677,8 +677,6 @@ def add_rates(request):
         d.Type_id=request.POST.get('field_of_work')
         d.Rate_type=request.POST.get('rate_type')
         d.Rate=request.POST.get('rate')
-        d.M_name=request.POST.get('m_name')
-        d.M_Rate=request.POST.get('m_rate')
         d.save()
         messages.success(request, 'Rates Added Successfully')
         return redirect('/login_admin/')
@@ -1182,6 +1180,11 @@ def manage_project(request,id,pid):
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
-        pd=tbl_projects.objects.get(id=pid)   
-        return render(request,'manage_project.html',{'pd':pd})
+        conid=request.session['conid']
+        c=CONTRACTOR_DETAILS.objects.get(c_name=conid)
+        t=TYPE_OF_WORK.objects.get(Type_of_work=c.Field_of_work)
+        rates=RATES.objects.get(Type_id=t.Type_id)
+        pd=tbl_projects.objects.get(id=pid)
+        d=DETAILS.objects.get(D_id=pd.Customer_id)   
+        return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates})
         

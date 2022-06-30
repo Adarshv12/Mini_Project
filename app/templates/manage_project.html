@@ -22,6 +22,25 @@
       margin: 0 20px;
     }
   </style>
+  <script>
+    function showdetails() {
+      document.getElementById("vdetails").style.display = "block";
+      document.getElementById("estimate").style.display = "none";
+
+    } function showestimate() {
+      document.getElementById("vdetails").style.display = "none";
+      document.getElementById("estimate").style.display = "block";
+
+    } function showreview() {
+      // document.getElementById("").style.display="block";
+
+    }
+    function showprogress() {
+      // document.getElementById("").style.display="block";
+
+    }
+
+  </script>
 
 
   <title>Project Management</title>
@@ -35,23 +54,31 @@
         <ul class="navbar-nav me-auto">
           <div>
             <li class="nav-item">
-              <button class="nav-link btn btn-outline-success" data-bs-toggle="tab" data-bs-target="#vdetails">View
+              <button class="nav-link btn btn-outline-success" onclick="return showdetails();">View
                 Detais</button>
             </li>
           </div>
           <div>
             <li class="nav-item">
-              <button class="nav-link btn btn-outline-info" data-bs-toggle="tab" data-bs-target="#estimate">Caculate
+              <button class="nav-link btn btn-outline-info" onclick="return showestimate();">Caculate
                 Estimate</button>
             </li>
           </div>
           <div>
             <li class="nav-item">
-              <button class="nav-link btn btn-outline-info" data-bs-toggle="tab" data-bs-target="">Rating and
+              <button class="nav-link btn btn-outline-info" onclick="return showprogress();">Progress</button>
+            </li>
+          </div>
+          <div>
+            <li class="nav-item">
+              <button class="nav-link btn btn-outline-info" onclick="return showreview();">Rating and
                 Review</button>
             </li>
           </div>
         </ul>
+        <form class="d-flex">
+          <a class="btn btn-danger" href="javascript:window.open('','_self').close();">Close</a>
+        </form>
       </div>
     </div>
   </nav>
@@ -59,46 +86,118 @@
 
 <body>
   <div class="row" id="vdetails">
-    <div class="col-xl-6">
-      <div class="table-responsive-xxl" style="margin:20px;">
-        <table class="table table-dark table-striped" >
-          <tr>
-            <th text-align="center" colspan="2">DETAILS</th>
-          </tr>
-          <tr>
-            <td>NAME</td>
-            <td>{{pd.D_start}}</td>
-          </tr>
-          <tr>
-            <td>ADDRESS</td>
-            <TD>{{pd.D_end}}</TD>
-          </tr>
-          <tr>
-            <td>PHONE</td>
-            <TD>{{pd.Loc}}</TD>
-          </tr>
-          <tr>
-            <td>EMAIL</td>
-            <td>{{pd.Suggestion}}<br></td>
-          </tr>
-          <tr>
-            <td>REMARKS</td>
-            <td>{{pd.remark}}<br></td>
-          </tr>
-        </table>
+    <div class="row">
+      <div class="col-xl-6">
+        <div class="table">
+          <table class="table table-bordered" style="margin:20px;">
+            <tr class="table-dark">
+              <th text-align="center">DETAILS</th>
+              <th text-align="center">{{pd.Type}}</th>
+            </tr>
+            <tr class="table-info">
+              <td>Estimated Start Date :</td>
+              <td>{{pd.D_start}}</td>
+            </tr>
+            <tr class="table-info">
+              <td>Estimated End Date : </td>
+              <TD>{{pd.D_end}}</TD>
+            </tr>
+            <input type="hidden" id="lat" value="{{pd.lat}}">
+            <input type="hidden" id="lon" value="{{pd.lon}}">
+            <tr class="table-info">
+              <td>City :</td>
+              <TD>{{pd.Loc}}</TD>
+            </tr>
+            <tr class="table-info">
+              <td>Suggestions :</td>
+              <td>{{pd.Suggestion}}<br></td>
+            </tr>
+            <tr class="table-info">
+              <td>Customer Name :</td>
+              <td colspan="2">{{d.Name}} <a data-bs-toggle="collapse" data-bs-target="#demo"><svg
+                    xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                    class="bi bi-arrow-down-circle" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                      d="M1 8a7 7 0 1 0 14 0A7 7 0 0 0 1 8zm15 0A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8.5 4.5a.5.5 0 0 0-1 0v5.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V4.5z" />
+                  </svg></a></td>
+            </tr>
+            <tr id="demo" class="collapse table-success">
+              <td>Contact Details :</td>
+              <td>{{d.Ph_no}}<br>{{d.Email}}</td>
+            </tr>
+            <tr class="table-info">
+              <td>Remarks :</td>
+              <td>{{pd.remark}} </td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
+      <div class="col-xl-6">
+        <iframe id="google_map" width="100%" height="400" frameborder="0" scrolling="no" marginheight="0"
+          marginwidth="0" src="https://maps.google.co.in?output=embed"></iframe><br>
+      </div>
+      <br><br>
+      <div class="row">
+        <div class="col-xl-6" align="center">
+          <a type="button" href="{{pd.Plan_img}}" class="btn btn-outline-primary" download> Download Plan</a>
+        </div>
+        <div class="col-xl-6" align="center">
+          <button type="button" class="btn btn-outline-primary" onclick="return showmap();">Show Location</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div id="estimate">
+    <div class="row" style="height: 40%;">
+      <div class="colmd-12" style="background-color: yellow;">
+        <div class="container mt-3">
+          <h2>Calculate Estimate</h2>
+          <form action="">
+            <div class="mb-3 mt-3">
+              <label>Builtup Area (in Sqft)</label>
+              <input type="text" class="form-control" id="area" placeholder="Enter Area" name="sqft" required>
+            </div>
+            <div class="mb-3 mt-3">
+              <label>Approx Cost (Per Square Feet) </label><br>
+            </div>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" id="rate" value="{{r.Rate}}">
+              <button class="btn btn-success" type="button" onclick="return show();"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">
+                <path d="M12.854.146a.5.5 0 0 0-.707 0L10.5 1.793 14.207 5.5l1.647-1.646a.5.5 0 0 0 0-.708l-3-3zm.646 6.061L9.793 2.5 3.293 9H3.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.207l6.5-6.5zm-7.468 7.468A.5.5 0 0 1 6 13.5V13h-.5a.5.5 0 0 1-.5-.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.5-.5V10h-.5a.499.499 0 0 1-.175-.032l-.179.178a.5.5 0 0 0-.11.168l-2 5a.5.5 0 0 0 .65.65l5-2a.5.5 0 0 0 .168-.11l.178-.178z"/>
+              </svg> </button>
+            </div>
+            <button type="submit" class="btn btn-primary">View Estimate</button>
+          </form>
+        </div>
       </div>
     </div>
-    <div class="col-xl-6">
-      <iframe id="google_map" width="100%" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-        src="https://maps.google.co.in?output=embed"></iframe><br>
-    </div>
-    <br><br>
-    <div class="col-xl-12" align="center" style="margin:20px;">
-      <button type="button" class="btn btn-outline-primary" onclick="">Show Location</button>
-    </div>
+    <div class="row">
+      <div class="col-md-12" style="background-color: rgb(77, 146, 115);">
 
+      </div>
+    </div>
   </div>
 
 </body>
+<script>
+  document.getElementById("estimate").style.display = "none";
+  document.getElementById('rate').setAttribute('readonly', 'true');
+
+  function showmap() {
+
+    var lat = document.getElementById('lat').value;
+    var lon = document.getElementById('lon').value;
+    var coords = lat + ',' + lon;
+    document.getElementById("google_map").setAttribute('src', 'https://maps.google.co.in/?q=' + coords + '&output=embed');
+
+
+  }
+  function show() {
+    document.getElementById('rate').setAttribute('readonly', 'false');
+
+  }
+</script>
 
 </html>

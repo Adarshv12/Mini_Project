@@ -86,8 +86,7 @@ class RATES(models.Model):
     Type_id=models.CharField(max_length=20)
     Rate=models.IntegerField()
     Rate_type=models.CharField(max_length=20)
-    M_name=models.CharField(max_length=50)
-    M_Rate=models.IntegerField()
+
 
 
     class Meta:

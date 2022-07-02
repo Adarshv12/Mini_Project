@@ -1187,4 +1187,37 @@ def manage_project(request,id,pid):
         pd=tbl_projects.objects.get(id=pid)
         d=DETAILS.objects.get(D_id=pd.Customer_id)   
         return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates})
+def cal_estimate(request):
+    if request.method == 'POST':
+        area=json.loads(request.body).get('a')
+        rate=json.loads(request.body).get('r')
+        tid=json.loads(request.body).get('t')
+        total=int(area)*int(rate)
+        tdata=TYPE_OF_WORK.objects.get(Type_id=tid)
+        t=tdata.Type_of_work
+        if t == 'Construction':
+            split_estimate={
+                "cement": pcalculate(16.4,total),
+                "sand": pcalculate(12.3,total),
+                "aggregate":pcalculate(7.4,total),
+                "steel":pcalculate(24.6,total),
+                "finishers":pcalculate(16.5,total),
+                "fittings":pcalculate(22.8,total),
+                "total":"{:,}".format(total),
+                "firstm":pcalculate1(21.9,total),
+                "secondm":pcalculate1(18.4,total),
+                "thirdm":pcalculate1(11.1,total),
+                "fourthm":pcalculate1(16.9,total),
+                "fifthm":pcalculate1(17.8,total),
+                "sixthm":pcalculate1(13.9,total),
+            }
+        data=split_estimate
+        return JsonResponse(data, safe=False)
         
+def pcalculate(percentage,value):
+    p = round(value * (float(percentage)/100))
+    return ("{:,}".format(p))
+
+def pcalculate1(percentage,value):
+    p = round(value * (float(percentage)/100))
+    return p

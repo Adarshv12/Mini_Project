@@ -100,16 +100,37 @@
       // document.getElementById("").style.display="block";
 
     }
-    function showprogress() {
-      // document.getElementById("").style.display="block";
+    function rpayment() {
+      document.getElementById("vdetails").style.display = "none";
+      document.getElementById('rpayment').style.display="block";
 
     }
     function close() {
       document.getElementById("userpopup").style.display = "none";
     }
-    function showpop(){
+    function showpop() {
       document.getElementById("userpopup").style.display = "block";
     }
+    var pid='{{pd.id}}';
+    var cid='{{u.Contractor_id}}';
+    console.log(pid, cid);
+    fetch("/check-project", {
+        body: JSON.stringify({ a: pid, c: cid}),
+        method: "POST"
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        if(data == 'false'){
+          document.getElementById('checkproject').style.display = "block";
+          document.getElementById('payments').style.display = "none";
+        }
+        else{
+          document.getElementById('checkproject').style.display = "none";
+          document.getElementById('payments').style.display = "block";
+        }
+      })
+
 
   </script>
 
@@ -129,17 +150,23 @@
                 Detais</button>
             </li>
           </div>
-          <div>
+          <div id="checkproject">
             <li class="nav-item">
               <button class="nav-link btn btn-outline-info" onclick="return showestimate();">Caculate
                 Estimate</button>
             </li>
           </div>
-          <div>
+          <div id="payments">
+            <li class="nav-item">
+              <button class="nav-link btn btn-outline-info" onclick="return rpayment();">Payments
+                </button>
+            </li>
+          </div>
+          <!-- <div>
             <li class="nav-item">
               <button class="nav-link btn btn-outline-info" onclick="return showprogress();">Progress</button>
             </li>
-          </div>
+          </div> -->
           <div>
             <li class="nav-item">
               <button class="nav-link btn btn-outline-info" onclick="return showreview();">Rating and
@@ -158,56 +185,55 @@
 <body>
   <div class="popupdiv" id="userpopup">
     <div class="popup">
-        <img id="imgDino1" src="{% static 'static1/img/accept1.gif'%}" alt="" height="100" width="100">
-        <h1>Upload This Quotation Or Your Quotation</h1><br><br>
-        <a class="close" href="javascript:close()">&times;</a>
-        <div class="row">
-                <div class="col-sm-6">
-                  <form action="/add_quotation/" method="post" enctype="multipart/form-data" onsubmit="return addestimate();">
-                    {% csrf_token %}
-                    <input type="hidden" name="pid" value="{{pd.id}}">
-                    <input type="hidden" name="cid" value="{{u.Contractor_id}}">
-                    <input type="hidden" name="cusid" value="{{pd.Customer_id}}">
-                    <input type="hidden" name="amount"  id="amount">  
-                    <input type="file" class="form-control" name="estimatepdf" id="estimatepdf" accept=".pdf, .doc, .csv">
-                </div>
-                <div class="col-sm-6">
-                  <input type="submit" value="submit" class="btn btn-success">
-                </div>
-                </form>
+      <img id="imgDino1" src="{% static 'static1/img/accept1.gif'%}" alt="" height="100" width="100">
+      <h1>Upload This Quotation Or Your Quotation</h1><br><br>
+      <a class="close" href="javascript:close()">&times;</a>
+      <div class="row">
+        <div class="col-sm-6">
+          <form action="/add_quotation/" method="post" enctype="multipart/form-data" onsubmit="return addestimate();">
+            {% csrf_token %}
+            <input type="hidden" name="pid" value="{{pd.id}}">
+            <input type="hidden" name="cid" value="{{u.Contractor_id}}">
+            <input type="hidden" name="cusid" value="{{pd.Customer_id}}">
+            <input type="hidden" name="amount" id="amount">
+            <input type="file" class="form-control" name="estimatepdf" id="estimatepdf" accept=".pdf, .doc, .csv">
         </div>
+        <div class="col-sm-6">
+          <input type="submit" value="submit" class="btn btn-success">
+        </div>
+        </form>
+      </div>
     </div>
   </div>
   <script>
     function addestimate() {
-      var a=document.getElementById('amount').value;
-      var f=document.getElementById('estimatepdf').value;
-      var allwd=/(\.doc|\.docx|\.pdf|\.csv)$/i;
-      if(f == ""){
+      var a = document.getElementById('amount').value;
+      var f = document.getElementById('estimatepdf').value;
+      var allwd = /(\.doc|\.docx|\.pdf|\.csv)$/i;
+      if (f == "") {
         alert("Choose File");
         return false;
       }
-      else if(!allwd.exec(f)){
+      else if (!allwd.exec(f)) {
         alert("Only PDF and DOC files are allowed");
         return false;
       }
-      else if(a.length == 0){
+      else if (a.length == 0) {
         alert("please generate first");
         return false;
       }
       return true;
     }
-    function closeMe()
-{
-    window.opener = self;
-    window.close();
-}
+    function closeMe() {
+      window.opener = self;
+      window.close();
+    }
   </script>
   {% if messages %}
   {% for message in messages %}
   <div class="alert alert-danger alert-dismissible" style="width: 450px;">
-      <button type="button" class="close" data-dismiss="alert">&times;</button>
-      <strong>{{ message }}</strong>
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>{{ message }}</strong>
   </div>
   {% endfor %}
   {% endif %}
@@ -278,7 +304,7 @@
   </div>
   <div id="estimate">
     <div class="row" style="height: 40%;">
-      <div class="colmd-12" style="background-color: yellow;">
+      <div class="col-md-12" style="background-color: yellow;">
         <div class="container mt-3">
           <h2>Calculate Estimate</h2>
           <form action="">
@@ -415,6 +441,26 @@
     <button type="button" class="btn btn-success" id="submitbtn" onclick="return showpop();">Submit</button>
   </div>
 
+<!-- Payments  -->
+  <div class="container" id="rpayment" style="background-color:rgb(140, 171, 189);">
+    <div class="row" style="background-color:rgb(0, 255, 170);">
+      <h3>Request Payment</h3>
+      <div class="col-xl-6" style="background-color:aquamarine;">
+        <div class="mb-3 mt-3">
+          <label>Amount Required</label>
+          <input type="text" class="form-control" id="ramount" placeholder="Enter Required Amount" name="ramount" required>
+        </div>
+        <button type="button" class="btn btn-outline-info" onclick="return update_request();">Submit</button><br>
+      </div>
+      <div class="col-xl-6">
+        <h3>Payment History</h3>
+      </div><br>
+      <div class="col-sm-12" align="center">
+        <h3>Progress Update</h3>
+      </div>
+    </div>
+  </div>
+
 </body>
 <script>
   document.getElementById("estimate").style.display = "none";
@@ -425,6 +471,8 @@
   document.getElementById('invoice').style.display = "none";
   document.getElementById('submitbtn').style.display = "none";
   document.getElementById('generatebtn').style.display = "none";
+  document.getElementById('rpayment').style.display="none";
+
   var today = new Date();
   var dd = String(today.getDate()).padStart(2, '0');
   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -432,7 +480,7 @@
 
   today = mm + '/' + dd + '/' + yyyy;
   document.getElementById('date').innerHTML = today;
-  document.getElementById('invoice').style.display = "none";  
+  document.getElementById('invoice').style.display = "none";
 
 
   function showmap() {
@@ -509,7 +557,7 @@
             chart.draw(d, options);
           }
         });
-        document.getElementById('generatebtn').style.display = "block";
+      document.getElementById('generatebtn').style.display = "block";
 
     }
     else {
@@ -539,5 +587,6 @@
     }
   }
 </script>
+<script src="{% static 'static1/js/usersearch.js'%}"></script>
 
 </html>

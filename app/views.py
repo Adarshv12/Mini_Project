@@ -1408,3 +1408,15 @@ def paymenthandler(request):
     else:
        # if other than POST request is made.
         return HttpResponseBadRequest()
+
+def check_project(request):
+    if request.method == 'POST':
+        pid=json.loads(request.body).get('a')
+        cid=json.loads(request.body).get('c')
+        try:
+            q=tbl_quotation.objects.get(Contractor_id=cid,Project_id=pid,status='1')
+            data=q.amt
+            return JsonResponse(data, safe=False)
+        except tbl_quotation.DoesNotExist:
+            data='false'
+            return JsonResponse(data, safe=False)

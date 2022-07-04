@@ -1,3 +1,4 @@
+{%load static%}
 <!doctype html>
 <html lang="en">
 
@@ -18,6 +19,12 @@
     integrity="sha384-fQybjgWLrvvRgtW6bFlB7jaZrFsaBXjsOMm/tB9LTS58ONXgqbR9W8oWht/amnpF"
     crossorigin="anonymous"></script>
   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.js"
+    integrity="sha512-dBB2PGgYedA6vzize7rsf//Q6iuUuMPvXCDybHtZP3hQXCPCD/YVJXK3QYZ2v0p7YCfVurqr8IdcSuj4CCKnGg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <link rel="stylesheet" href="{% static 'static1/css/popup5.css'%}">
+
+
 
   <style>
     li {
@@ -31,6 +38,7 @@
       position: relative;
       animation: mymove 2s;
     }
+
     #div2 {
       display: block;
       position: relative;
@@ -49,12 +57,34 @@
 
     @keyframes mynewmove {
       from {
-        bottom: 0px;
+        left: 0px;
       }
 
       to {
-        bottom: 50px;
+        left: 20px;
       }
+    }
+
+    .popupdiv {
+      display: none;
+      position: fixed;
+      /* Stay in place */
+      z-index: 1;
+      /* Sit on top */
+      padding-top: 100px;
+      /* Location of the box */
+      left: 0;
+      top: 0;
+      width: 100%;
+      /* Full width */
+      height: 100%;
+      /* Full height */
+      overflow: auto;
+      /* Enable scroll if needed */
+      background-color: rgb(0, 0, 0);
+      /* Fallback color */
+      background-color: rgba(0, 0, 0, 0.4);
+      /* Black w/ opacity */
     }
   </style>
   <script>
@@ -73,6 +103,12 @@
     function showprogress() {
       // document.getElementById("").style.display="block";
 
+    }
+    function close() {
+      document.getElementById("userpopup").style.display = "none";
+    }
+    function showpop(){
+      document.getElementById("userpopup").style.display = "block";
     }
 
   </script>
@@ -112,7 +148,7 @@
           </div>
         </ul>
         <form class="d-flex">
-          <a class="btn btn-danger" href="javascript:window.open('','_self').close();">Close</a>
+          <button type="button" class="btn btn-danger" onclick="closeMe();">Close</button>
         </form>
       </div>
     </div>
@@ -120,6 +156,62 @@
 </head>
 
 <body>
+  <div class="popupdiv" id="userpopup">
+    <div class="popup">
+        <img id="imgDino1" src="{% static 'static1/img/accept1.gif'%}" alt="" height="100" width="100">
+        <h1>Upload This Quotation Or Your Quotation</h1><br><br>
+        <a class="close" href="javascript:close()">&times;</a>
+        <div class="row">
+                <div class="col-sm-6">
+                  <form action="/add_quotation/" method="post" enctype="multipart/form-data" onsubmit="return addestimate();">
+                    {% csrf_token %}
+                    <input type="hidden" name="pid" value="{{pd.id}}">
+                    <input type="hidden" name="cid" value="{{u.Contractor_id}}">
+                    <input type="hidden" name="cusid" value="{{pd.Customer_id}}">
+                    <input type="hidden" name="amount"  id="amount">  
+                    <input type="file" class="form-control" name="estimatepdf" id="estimatepdf" accept=".pdf, .doc, .csv">
+                </div>
+                <div class="col-sm-6">
+                  <input type="submit" value="submit" class="btn btn-success">
+                </div>
+                </form>
+        </div>
+    </div>
+  </div>
+  <script>
+    function addestimate() {
+      var a=document.getElementById('amount').value;
+      var f=document.getElementById('estimatepdf').value;
+      var allwd=/(\.doc|\.docx|\.pdf|\.csv)$/i;
+      if(f == ""){
+        alert("Choose File");
+        return false;
+      }
+      else if(!allwd.exec(f)){
+        alert("Only PDF and DOC files are allowed");
+        return false;
+      }
+      else if(a.length == 0){
+        alert("please generate first");
+        return false;
+      }
+      return true;
+    }
+    function closeMe()
+{
+    window.opener = self;
+    window.close();
+}
+  </script>
+  {% if messages %}
+  {% for message in messages %}
+  <div class="alert alert-danger alert-dismissible" style="width: 450px;">
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+      <strong>{{ message }}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+
   <div class="row" id="vdetails">
     <div class="row">
       <div class="col-xl-6">
@@ -210,8 +302,8 @@
           </form>
         </div>
       </div>
-      <h2 id="heading">Calculation of Cost | Approx amount of cost for given construction is Rs. <span id="total"
-        style="color: red; font-weight: bold"></span></h2><br>
+      <h2 id="heading">Approx amount of cost for given construction is Rs. <span id="total"
+          style="color: red; font-weight: bold"></span></h2><br>
       <div class="col-md-7" style="background-color: rgb(255, 255, 255);" id="table1">
         <table class="table table-bordered">
           <tr>
@@ -221,43 +313,106 @@
           </tr>
           <tr>
             <td>Cement (16.4 %)</td>
-            <td><span id="c" style="text-decoration: dotted;"></span></td>
+            <td><span id="c" style="color: rgb(0, 34, 255); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
             <td>Sand (12.3 %)</td>
-            <td><span id="s" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="s" style="color: rgb(115, 0, 255); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
             <td>Aggregate (7.4 %)</td>
-            <td><span id="a" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="a" style="color: rgb(255, 153, 0); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
             <td>Steel (24.6 %)</td>
-            <td><span id="st" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="st" style="color: rgb(0, 179, 255); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
-            <td>Finishers (16.5 %)5,61,000.00 Rs.<br>
+            <td>Finishers (16.5 %)<br>
               (Paint (4.1 %) + Tiles (8.0 %) + Bricks (4.4 %))</td>
-            <td><span id="f" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="f" style="color: rgb(255, 0, 242); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
-            <td>Fittings (22.8 %)7,75,200.00 Rs.<br>
+            <td>Fittings (22.8 %)<br>
               (Window (3.0 %) + Doors (3.4 %) + Plumbing (5.5 %) + Eletrical (6.8 %) + Sanitary (4.1 %))</td>
-            <td><span id="fi" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="fi" style="color: rgb(0, 255, 0); font-style: italic;font-weight: bold;"></span></td>
           </tr>
           <tr>
             <td><b>TOTAL COST</b></td>
-            <td><span id="t" style="background-color:rgb(208, 136, 136);"></span></td>
+            <td><span id="t" style="color: red; font-weight: bold"></span></td>
           </tr>
         </table>
       </div>
       <div class="col-md-5" id="div2" style="width:100%; max-width:600px; height:500px;">
-        <div id="myChart" style="width:100%; max-width:600px; height:500px;"> 
-          heelo
+        <div id="myChart" style="width:100%; max-width:600px; height:500px;">
+
         </div>
-       
+      </div><br>
+      <button class="btn btn-outline-danger" onclick="return generatePDF();" id="generatebtn"> Generate PDF</button>
+    </div>
+  </div>
+  <div class="container" id="invoice">
+    <div class="row">
+      <h3 align="center">{{pd.p_name}} Estimate</h3><br>
+      <div class="col-sm-12">
+        <h5 align="right" id="date"></h5>
+        <h5>From </h5>
+        <h6>{{c.Name}}</h6>
+        <h6>{{c.Address}}</h6>
+        <h6>{{c.Ph_no}}</h6><br>
+      </div>
+      <div class="col-sm-12">
+        <h5>To</h5>
+        <h6>{{d.Name}}</h6>
+        <h6>{{d.Address}}</h6>
+        <h6>{{d.Ph_no}}</h6>
+        <h4 id="heading">Approx amount of cost for given construction is Rs. <span id="total1"
+            style="color: red; font-weight: bold"></span> &nbsp; Including Material and Labour Charge </h4><br>
+        <h5 align="center">Price Breakup</h5>
+      </div>
+      <div class="col-sm-12">
+        <table class="table table-bordered">
+          <tr>
+            <th colspan="2">
+              Approximate cost on various work of materialas per thumb rule
+            </th>
+          </tr>
+          <tr>
+            <td>Cement (16.4 %)</td>
+            <td><span id="c1" style="color: rgb(0, 34, 255); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td>Sand (12.3 %)</td>
+            <td><span id="s1" style="color: rgb(115, 0, 255); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td>Aggregate (7.4 %)</td>
+            <td><span id="a1" style="color: rgb(255, 153, 0); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td>Steel (24.6 %)</td>
+            <td><span id="st1" style="color: rgb(0, 179, 255); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td>Finishers (16.5 %)<br>
+              (Paint (4.1 %) + Tiles (8.0 %) + Bricks (4.4 %))</td>
+            <td><span id="f1" style="color: rgb(255, 0, 242); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td>Fittings (22.8 %)<br>
+              (Window (3.0 %) + Doors (3.4 %) + Plumbing (5.5 %) + Eletrical (6.8 %) + Sanitary (4.1 %))</td>
+            <td><span id="fi1" style="color: rgb(0, 255, 0); font-style: italic;font-weight: bold;"></span></td>
+          </tr>
+          <tr>
+            <td><b>TOTAL COST</b></td>
+            <td><span id="t1" style="color: red; font-weight: bold"></span></td>
+          </tr>
+        </table>
       </div>
     </div>
+  </div>
+  <div class="col-sm-12" align="center">
+    <button type="button" class="btn btn-success" id="submitbtn" onclick="return showpop();">Submit</button>
   </div>
 
 </body>
@@ -267,6 +422,18 @@
   document.getElementById('heading').style.display = "none";
   document.getElementById('table1').style.display = "none";
   document.getElementById('div2').style.display = "none";
+  document.getElementById('invoice').style.display = "none";
+  document.getElementById('submitbtn').style.display = "none";
+  document.getElementById('generatebtn').style.display = "none";
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+  var yyyy = today.getFullYear();
+
+  today = mm + '/' + dd + '/' + yyyy;
+  document.getElementById('date').innerHTML = today;
+  document.getElementById('invoice').style.display = "none";  
+
 
   function showmap() {
 
@@ -302,26 +469,36 @@
           document.getElementById('table1').style.display = "block";
           document.getElementById('div2').style.display = "block";
 
-          document.getElementById('total').innerHTML = data.total;
-          document.getElementById('t').innerHTML = data.total;
-          document.getElementById('c').innerHTML = data.cement;
-          document.getElementById('a').innerHTML = data.aggregate;
-          document.getElementById('s').innerHTML = data.sand;
-          document.getElementById('st').innerHTML = data.steel;
-          document.getElementById('f').innerHTML = data.finishers;
-          document.getElementById('fi').innerHTML = data.fittings;
+          document.getElementById('total').innerHTML = 'Rs.' + data.total;
+          document.getElementById('amount').value = data.total_cost;
+          document.getElementById('t').innerHTML = 'Rs.' + data.total;
+          document.getElementById('c').innerHTML = 'Rs.' + data.cement;
+          document.getElementById('a').innerHTML = 'Rs.' + data.aggregate;
+          document.getElementById('s').innerHTML = 'Rs.' + data.sand;
+          document.getElementById('st').innerHTML = 'Rs.' + data.steel;
+          document.getElementById('f').innerHTML = 'Rs.' + data.finishers;
+          document.getElementById('fi').innerHTML = 'Rs.' + data.fittings;
+
+          document.getElementById('total1').innerHTML = 'Rs.' + data.total;
+          document.getElementById('t1').innerHTML = 'Rs.' + data.total;
+          document.getElementById('c1').innerHTML = 'Rs.' + data.cement;
+          document.getElementById('a1').innerHTML = 'Rs.' + data.aggregate;
+          document.getElementById('s1').innerHTML = 'Rs.' + data.sand;
+          document.getElementById('st1').innerHTML = 'Rs.' + data.steel;
+          document.getElementById('f1').innerHTML = 'Rs.' + data.finishers;
+          document.getElementById('fi1').innerHTML = 'Rs.' + data.fittings;
           google.charts.setOnLoadCallback(drawChart);
           google.charts.load('current', { 'packages': ['corechart'] });
 
           function drawChart() {
             var d = google.visualization.arrayToDataTable([
               ['Months', 'Estimate'],
-              ['First Month', data.firstm],
-              ['Second Month', data.secondm],
-              ['Third Month', data.thirdm],
-              ['Fourth Month', data.fourthm],
-              ['Fifth Month', data.fifthm],
-              ['Sixth Month', data.sixthm],
+              ['First Month - 21.9%', data.firstm],
+              ['Second Month - 18.4%', data.secondm],
+              ['Third Month - 11.1%', data.thirdm],
+              ['Fourth Month - 16.9%', data.fourthm],
+              ['Fifth Month - 17.8%', data.fifthm],
+              ['Sixth Month - 13.9%', data.sixthm],
             ]);
 
             var options = {
@@ -332,9 +509,33 @@
             chart.draw(d, options);
           }
         });
+        document.getElementById('generatebtn').style.display = "block";
+
     }
     else {
       alert("Please enter Area and Rate");
+    }
+  }
+  function generatePDF() {
+    var area = document.getElementById('area').value;
+    var rate = document.getElementById('rate').value;
+    if (area.length > 0 & rate.length > 0) {
+      document.getElementById("estimate").style.display = "none";
+      document.getElementById('invoice').style.display = "block";
+      const element = document.getElementById('invoice');
+      var opt = {
+        margin: 1,
+        filename: 'estimate_{{c.Name}}.pdf',
+        jsPDF: { format: 'a4', orientation: 'portrait' }
+      };
+      a = html2pdf().set(opt).from(element).save();
+      document.getElementById('submitbtn').style.display = "block";
+
+      return false;
+    }
+    else {
+      alert("please Calculate The Estimate");
+      return true;
     }
   }
 </script>

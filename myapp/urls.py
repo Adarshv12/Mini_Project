@@ -108,14 +108,16 @@ urlpatterns = [
     path('contractor_edit/<Contractor_id>',views.contractor_edit),
     path('update_contractor/',views.update_contractor),
     path('view_invite_con/<id>',views.view_invite_con),
-    path('manage_project/<id>/<pid>',views.manage_project),
+    path('manage_project/<pid>',views.manage_project,name='manage_project'),
     path('add_image_con/',views.add_image_con),
     path('show_image_con/<Contractor_id>',views.show_image_con),
     path('accept_invite_con/<int:id>/<str:Customer_id>/<str:cid>',views.accept_invite_con),
+    path('add_quotation/',views.add_quotation),
     path('reject_invite_con/<int:id>/<str:Customer_id>/<str:cid>',views.reject_invite_con),
+    path('manage_project_cus/<pid>',views.manage_project_cus,name='manage_project_cus'),
+    path('confirm_quotation/<int:id>',views.confirm_quotation),
 
-
-
+    path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
 
 
 ]

@@ -21,6 +21,7 @@ urlpatterns = [
         path('show-contractor', csrf_exempt(views.show_contractor),name='show-contractor'),
         path('invite-contractor', csrf_exempt(views.invite_contractor),name='invite-contractor'),   # likepost view at /likepost
         path('cal-estimate', csrf_exempt(views.cal_estimate),name='cal-estimate'),   # likepost view at /likepost
+        path('show-estimate', csrf_exempt(views.show_estimate),name='show-estimate'),   # likepost view at /likepost
 
         
 

@@ -4,8 +4,9 @@ from xml.sax.handler import DTDHandler
 from django.shortcuts import redirect
 from django.shortcuts import render
 from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
-TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite
-from django.http import HttpResponse, JsonResponse
+TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
+tbl_quotation
+from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
 import myapp.settings
@@ -16,7 +17,9 @@ from django.core import serializers
 from django.views import View
 import json
 from django.views.decorators.cache import cache_control
-import requests
+import razorpay
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 
 # Create your views here.
@@ -338,9 +341,12 @@ def login_cus(request):
         usid=request.session['cusid']
         d=CUSTOMER_DETAILS.objects.get(cu_name=usid)
         cus_id=d.Customer_id
+        q=tbl_quotation.objects.filter(Customer_id=cus_id) & (tbl_quotation.objects.filter(status='0'))
+        p=tbl_projects.objects.filter(Customer_id=cus_id)
+        c=q.count()
         details=DETAILS.objects.get(D_id=cus_id)
         t=TYPE_OF_WORK.objects.all()
-        return render(request,'customer_h.html',{'data':details,'d':d,'t':t})
+        return render(request,'customer_h.html',{'data':details,'d':d,'t':t,'c':c,'q':q,'p':p})
 
 def user_edit(request,Customer_id):
     if 'cusid' not in request.session:
@@ -1129,6 +1135,7 @@ def add_image_con(request):
         d.Title=request.POST.get('title')
         d.user_name=request.POST.get('uname')
         Photo=request.FILES['photo']
+        print("ph",Photo)
         fs=FileSystemStorage()
         fn=fs.save(Photo.name,Photo)
         uploaded_file_url=fs.url(fn)
@@ -1175,18 +1182,19 @@ def reject_invite_con(request,id,Customer_id,cid):
     p.save()
     return redirect('/login_con/')
 
-def manage_project(request,id,pid):
+def manage_project(request,pid):
     if 'conid' not in request.session:
         messages.success(request, 'Session Expired')
         return redirect('/login/')
     else:
         conid=request.session['conid']
         c=CONTRACTOR_DETAILS.objects.get(c_name=conid)
+        cd=DETAILS.objects.get(D_id=c.Contractor_id)
         t=TYPE_OF_WORK.objects.get(Type_of_work=c.Field_of_work)
         rates=RATES.objects.get(Type_id=t.Type_id)
         pd=tbl_projects.objects.get(id=pid)
         d=DETAILS.objects.get(D_id=pd.Customer_id)   
-        return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates})
+        return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c})
 def cal_estimate(request):
     if request.method == 'POST':
         area=json.loads(request.body).get('a')
@@ -1204,6 +1212,7 @@ def cal_estimate(request):
                 "finishers":pcalculate(16.5,total),
                 "fittings":pcalculate(22.8,total),
                 "total":"{:,}".format(total),
+                "total_cost":total,
                 "firstm":pcalculate1(21.9,total),
                 "secondm":pcalculate1(18.4,total),
                 "thirdm":pcalculate1(11.1,total),
@@ -1221,3 +1230,181 @@ def pcalculate(percentage,value):
 def pcalculate1(percentage,value):
     p = round(value * (float(percentage)/100))
     return p
+
+def add_quotation(request):
+    pid=request.POST.get('pid')
+    cid=request.POST.get('cid')
+    cusid=request.POST.get('cusid')
+    q=tbl_quotation.objects.filter(Project_id=pid,Contractor_id=cid)
+    if(q.count()>0):
+        q=tbl_quotation.objects.get(Project_id=pid,Contractor_id=cid)
+        q.amt=request.POST.get('amount')
+        fs=FileSystemStorage()
+        file=request.FILES['estimatepdf']
+        fn=fs.save(file.name,file)
+        uploaded_file_url=fs.url(fn)
+        q.file=uploaded_file_url
+        q.save()
+        d=DETAILS.objects.get(D_id=cusid)
+        c=CONTRACTOR_DETAILS.objects.get(Contractor_id=cid)
+        name=c.c_name
+        Email=d.Email
+        subject = 'Quotation'
+        message = f'{name} Just Updated His Quotation\nCheck It Out👍'
+        email_from = myapp.settings.EMAIL_HOST_USER        
+        recipient_list = [Email]
+        send_mail( subject, message, email_from, recipient_list )
+        messages.success(request, 'Quotation Updated')
+        return redirect('manage_project', pid=pid)
+    else:
+        q=tbl_quotation()
+        q.Project_id=request.POST.get('pid')
+        q.Contractor_id=request.POST.get('cid')
+        q.Customer_id=request.POST.get('cusid')
+        d=DETAILS.objects.get(D_id=cusid)
+        c=CONTRACTOR_DETAILS.objects.get(Contractor_id=cid)
+        name=c.c_name
+        Email=d.Email
+        q.amt=request.POST.get('amount')
+        fs=FileSystemStorage()
+        file=request.FILES['estimatepdf']
+        fn=fs.save(file.name,file)
+        uploaded_file_url=fs.url(fn)
+        q.file=uploaded_file_url
+        q.status='0'
+        q.save()
+        subject = 'Quotation'
+        message = f'{name} Just Submitted His Quotation\nCheck It Out👍'
+        email_from = myapp.settings.EMAIL_HOST_USER        
+        recipient_list = [Email]
+        send_mail( subject, message, email_from, recipient_list )
+        messages.success(request, 'Quotation Submitted')
+        return redirect('manage_project', pid=pid)
+def confirm_quotation(request,id):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        q=tbl_quotation.objects.get(id=id)
+        d=DETAILS.objects.get(D_id=q.Contractor_id)
+        c=DETAILS.objects.get(D_id=q.Customer_id)
+        name=c.Name
+        email=d.Email
+        subject = 'Congratulations'
+        message = f'{name} Just Accepted Your Quotation \n'
+        email_from = myapp.settings.EMAIL_HOST_USER        
+        recipient_list = [email]
+        send_mail( subject, message, email_from, recipient_list )
+        q.status='1'
+        q.save()
+        return redirect('/login_cus/')
+def manage_project_cus(request,pid):
+    if 'cusid' not in request.session:
+        messages.success(request, 'Session Expired')
+        return redirect('/login/')
+    else:
+        cuid=request.session['cusid']
+        d=CUSTOMER_DETAILS.objects.get(cu_name=cuid)
+        cusid=d.Customer_id
+        try:
+            q=tbl_quotation.objects.get(Customer_id=cusid, Project_id=pid, status='1')
+            p=tbl_projects.objects.get(id=pid)
+            d=DETAILS.objects.get(D_id=q.Contractor_id)
+            currency = 'INR'
+            amount = 20000  # Rs. 200
+        
+            # Create a Razorpay Order
+            razorpay_order = razorpay_client.order.create(dict(amount=amount,
+                                                            currency=currency,
+                                                            payment_capture='0'))
+        
+            # order id of newly created order.
+            razorpay_order_id = razorpay_order['id']
+            callback_url = 'paymenthandler/'
+        
+            # we need to pass these details to frontend.
+            context = {}
+            context['razorpay_order_id'] = razorpay_order_id
+            context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+            context['razorpay_amount'] = amount
+            context['currency'] = currency
+            context['callback_url'] = callback_url
+            context['pd']=p
+            context['d']=d
+            context['q']=q
+            return render(request, 'manage_project_cus.html',context=context)
+        except tbl_quotation.DoesNotExist:
+            q=None
+            messages.success(request, 'This Project Did not Confirmed')
+            return redirect('/login_cus/')
+
+def show_estimate(request):
+    if request.method == 'POST':
+        total=json.loads(request.body).get('a')
+        total=float(total)
+        split_estimate = {
+            "cement": pcalculate(16.4, total),
+            "sand": pcalculate(12.3, total),
+            "aggregate": pcalculate(7.4, total),
+            "steel": pcalculate(24.6, total),
+            "finishers": pcalculate(16.5, total),
+            "fittings": pcalculate(22.8, total),
+            "total": "{:,}".format(total),
+            "total_cost": total,
+            "firstm": pcalculate1(21.9, total),
+            "secondm": pcalculate1(18.4, total),
+            "thirdm": pcalculate1(11.1, total),
+            "fourthm": pcalculate1(16.9, total),
+            "fifthm": pcalculate1(17.8, total),
+            "sixthm": pcalculate1(13.9, total),}
+        data=split_estimate
+        return JsonResponse(data, safe=False)
+
+# Razor pay things ---------------------------------------------------------------------------------------       
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+
+@csrf_exempt
+def paymenthandler(request):
+ 
+    # only accept POST request.
+    if request.method == "POST":
+        try:
+           
+            # get the required parameters from post request.
+            payment_id = request.POST.get('razorpay_payment_id', '')
+            razorpay_order_id = request.POST.get('razorpay_order_id', '')
+            signature = request.POST.get('razorpay_signature', '')
+            params_dict = {
+                'razorpay_order_id': razorpay_order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            }
+ 
+            # verify the payment signature.
+            result = razorpay_client.utility.verify_payment_signature(
+                params_dict)
+            if result is None:
+                amount = 20000  # Rs. 200
+                try:
+ 
+                    # capture the payemt
+                    razorpay_client.payment.capture(payment_id, amount)
+ 
+                    # render success page on successful caputre of payment
+                    return render(request, 'paymentsuccess.html')
+                except:
+ 
+                    # if there is an error while capturing payment.
+                    return render(request, 'paymentfail.html')
+            else:
+ 
+                # if signature verification fails.
+                return render(request, 'paymentfail.html')
+        except:
+ 
+            # if we don't find the required parameters in POST data
+            return HttpResponseBadRequest()
+    else:
+       # if other than POST request is made.
+        return HttpResponseBadRequest()

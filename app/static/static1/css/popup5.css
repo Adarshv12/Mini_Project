@@ -1,34 +1,4 @@
 
-  
- 
-  .title {
-    color: grey;
-    font-size: 18px;
-  }
-  
-  .box {
-    width: 40%;
-    margin: 0 auto;
-    background: rgba(255,255,255,0.2);
-    padding: 5px;
-    border-radius: 20px/50px;
-    text-align: left;
-  }
-  
-  .button1 {
-    font-size: 1em;
-    padding: 10px;
-    color: rgb(23, 58, 214);
-    border: 2px solid #15bebe;
-    border-radius: 20px/50px;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.3s ease-out;
-  }
-  .button1:hover {
-    background: #06D85F;
-  }
-  
   .overlay {
     position: fixed;
     top: 0;
@@ -80,7 +50,7 @@
     width: 100%;
     overflow: auto;
   }
-  
+
   @media screen and (max-width: 700px){
     .box{
       width: 70%;
@@ -89,4 +59,3 @@
       width: 70%;
     }
   }
-  

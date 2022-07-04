@@ -25,9 +25,15 @@ https://templatemo.com/tm-518-sentra
     <link rel="stylesheet" href="{% static 'static1/css/owl-carousel.css'%}">
     <link rel="stylesheet" href="{% static 'static1/css/templatemo-style.css'%}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700,800" rel="stylesheet">
     <script src="{% static 'static1/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js'%}"></script>
+    <link rel="stylesheet" href="{% static 'static1/css/popup6.css'%}">
+    <link rel="stylesheet" href="{% static 'static1/css/popup7.css'%}">
+
     <style>
         .filterDiv {
             float: left;
@@ -66,6 +72,50 @@ https://templatemo.com/tm-518-sentra
             background-color: #666;
             color: white;
         }
+
+        .popupdiv {
+            display: none;
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
+
+        .popupdiv1 {
+            display: none;
+            position: fixed;
+            /* Stay in place */
+            z-index: 1;
+            /* Sit on top */
+            padding-top: 100px;
+            /* Location of the box */
+            left: 0;
+            top: 0;
+            width: 100%;
+            /* Full width */
+            height: 100%;
+            /* Full height */
+            overflow: auto;
+            /* Enable scroll if needed */
+            background-color: rgb(0, 0, 0);
+            /* Fallback color */
+            background-color: rgba(0, 0, 0, 0.4);
+            /* Black w/ opacity */
+        }
     </style>
 
 
@@ -84,6 +134,9 @@ https://templatemo.com/tm-518-sentra
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
         </button>
+
+
+
         <!--/.navbar-header-->
         <div id="main-nav" class="collapse navbar-collapse">
             <nav>
@@ -104,17 +157,50 @@ https://templatemo.com/tm-518-sentra
                     id="customerid">{{ d.cu_name }}</em></a>
 
         </div>
+        <div class="popupdiv1" id="userpopup1">
+            <div class="popup1">
+                <h1>Your Projects</h1>
+                <a class="close" href="javascript:close1()">&times;</a>
+                <div class="content">
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Name</th>
+                                <th>Suggestions</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Actions</th>
+    
+                            </tr>
+                            <tr>
+                                {% for i in p %}
+    
+                                <td>{{i.p_name}}</td>
+                                <td>{{i.Suggestion}}</td>
+                                <td>{{i.D_start}}</td>
+                                <td>{{i.D_end}}</td>
+                                <td><a class="btn btn-primary" href="/manage_project_cus/{{i.id}}" role="button"
+                                        target="_blank">Choose</a></td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
         <nav>
 
             <ul>
                 <li>
-                        <a href="#project">
-                            <span class="rect"></span>
-                            <span class="circle"></span>
-                            Invite workers
-                        </a>
-                    </li>
+                    <a href="#project">
+                        <span class="rect"></span>
+                        <span class="circle"></span>
+                        Invite workers
+                    </a>
+                </li>
 
                 <li>
                     <a href="#blog">
@@ -144,12 +230,45 @@ https://templatemo.com/tm-518-sentra
         </ul>
 
     </div>
+    <div class="popupdiv" id="userpopup">
+        <div class="popup">
+            <h2>Quotations</h2><br>
+            <a class="close" href="javascript:close()">&times;</a>
+            {% for i in q %}
+            <div class="row" style="background-color: yellow;">
+                <div class="col-sm-6" align="left">
+                    <h3>Quotation <span style="color: rgb(0, 0, 0); font-weight: bold">{{forloop.counter}}</span></h3>
+                </div>
+                <div class="col-sm-6" align="right">
+                    <h3>Amount : <span style="color: red; font-weight: bold">{{i.amt}}</span></h3>
+                    <a href="{{i.file}}" class="btn btn-success" download>Download</a>
+                    <a href="/confirm_quotation/{{i.id}}" class="btn btn-outline-primary">Confirm</a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    
     <div class="page-content">
+
         <section id="projects" class="content-section">
+            <div class="" align="right">
+                <a href="#" onclick="openForm()"><img src="{% static 'static1/img/email.png'%}" width="50"
+                        height="50"></a>&nbsp;<span class="badge">{{c}}</span>
+            </div>
             <div class="section-heading">
                 <h1>Search<br> <em> Workers</em></h1>
             </div>
-            
+            <script>
+                function openForm() {
+                    document.getElementById('userpopup').style.display = 'block';
+                }
+                function close() {
+                    document.getElementById("userpopup").style.display = "none";
+                }
+            </script>
+
             {% if messages %}
             {% for message in messages %}
             <div class="alert alert-danger alert-dismissible" style="width: 450px;">
@@ -164,10 +283,10 @@ https://templatemo.com/tm-518-sentra
                     <div class="form-group">
                         <label for="sel1">Select Field of Work:</label>
                         <select class="form-control" id="sel1">
-                        <option selected>Field of Work</option>
-                        {% for i in t %}
-                        <option value="{{i.Type_of_work}}">{{i.Type_of_work}}</option>
-                        {% endfor %}
+                            <option selected>Field of Work</option>
+                            {% for i in t %}
+                            <option value="{{i.Type_of_work}}">{{i.Type_of_work}}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>
@@ -252,13 +371,31 @@ https://templatemo.com/tm-518-sentra
                 <div class="col-sm-4">
                     <div class="item">
                         <div>
+                            <a class="btn-view">
+                                <img id="imgDino2" src="{% static 'static1/img/handshake.png'%}" alt="" height="200"
+                                    width="200"><br><br>
+                                Manage Projects</a>
+                        </div>
+                    </div>
+                    <script>
+                        $('.btn-view').click(function () {
+                            document.getElementById("userpopup1").style.display = "block";
+                        });
+                        function close1() {
+                            document.getElementById("userpopup1").style.display = "none";
+                        }
+                    </script>
+                </div>
+                <!-- <div class="col-sm-4">
+                    <div class="item">
+                        <div>
                             <a class="" href="/view_winvite/{{ d.cu_name }}">
                                 <img id="imgDino2" src="{% static 'static1/img/handshake.png'%}" alt="" height="200"
                                     width="200"><br><br>
                                 View Invites</a>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
     </div>
 

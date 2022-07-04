@@ -195,3 +195,15 @@ class tbl_contractor_invite(models.Model):
 
     class Meta:
         db_table ="tbl_contractor_invite"
+
+class tbl_quotation(models.Model):
+    Project_id=models.CharField(max_length=5)
+    Contractor_id=models.CharField(max_length=10)
+    Customer_id=models.CharField(max_length=10)
+    amt=models.IntegerField()
+    file=models.CharField(max_length=100)
+    status=models.CharField(max_length=5)
+
+    class Meta:
+        db_table ="tbl_quotation"
+

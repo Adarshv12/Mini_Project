@@ -207,3 +207,23 @@ class tbl_quotation(models.Model):
     class Meta:
         db_table ="tbl_quotation"
 
+class tbl_payment_request(models.Model):
+    Project_id=models.CharField(max_length=5)
+    Contractor_id=models.CharField(max_length=10)
+    Customer_id=models.CharField(max_length=10)
+    ramt=models.IntegerField()
+    status=models.CharField(max_length=5)
+
+    class Meta:
+        db_table ="tbl_payment_request"
+
+class tbl_payments(models.Model):
+    rpayment_id=models.CharField(max_length=10)
+    payment_id=models.CharField(max_length=10)
+    pamount=models.IntegerField()
+    bamount=models.IntegerField()
+    date=models.DateField(auto_now_add=True)
+    status=models.CharField(max_length=5)
+
+    class Meta:
+        db_table ="tbl_payments"

@@ -23,6 +23,7 @@ urlpatterns = [
         path('cal-estimate', csrf_exempt(views.cal_estimate),name='cal-estimate'),   # likepost view at /likepost
         path('show-estimate', csrf_exempt(views.show_estimate),name='show-estimate'),   # likepost view at /likepost
         path('check-project', csrf_exempt(views.check_project),name='check-project'),   # likepost view at /likepost
+        path('add-prequest', csrf_exempt(views.add_prequest),name='add-prequest'),   # likepost view at /likepost
 
         
 

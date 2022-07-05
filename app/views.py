@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
 TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
-tbl_quotation
+tbl_quotation, tbl_payment_request,tbl_payments
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
@@ -1193,8 +1193,12 @@ def manage_project(request,pid):
         t=TYPE_OF_WORK.objects.get(Type_of_work=c.Field_of_work)
         rates=RATES.objects.get(Type_id=t.Type_id)
         pd=tbl_projects.objects.get(id=pid)
-        d=DETAILS.objects.get(D_id=pd.Customer_id)   
-        return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c})
+        d=DETAILS.objects.get(D_id=pd.Customer_id)
+        try:
+            r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=c.Contractor_id,Customer_id=pd.Customer_id,status='0')
+            return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r})
+        except tbl_payment_request.DoesNotExist:
+            return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c})
 def cal_estimate(request):
     if request.method == 'POST':
         area=json.loads(request.body).get('a')
@@ -1420,3 +1424,43 @@ def check_project(request):
         except tbl_quotation.DoesNotExist:
             data='false'
             return JsonResponse(data, safe=False)
+
+def add_prequest(request):
+    if request.method == 'POST':
+        pid=json.loads(request.body).get('pid')
+        cid=json.loads(request.body).get('cid')
+        cusid=json.loads(request.body).get('cusid')
+        ramt=json.loads(request.body).get('ramt')
+        d=DETAILS.objects.get(D_id=cusid)
+        cd=DETAILS.objects.get(D_id=cid)
+        name=cd.Name
+        email=d.Email
+        try:
+            r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
+            r.ramt=ramt
+            r.save()
+            # subject = 'Payment'
+            # message = f'{name} Just Updated The Requested Amo To {ramt} Rupees \n'
+            # email_from = myapp.settings.EMAIL_HOST_USER        
+            # recipient_list = [email]
+            # send_mail( subject, message, email_from, recipient_list )
+            rd=tbl_payment_request.objects.filter(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
+            data=rd.values()
+            return JsonResponse(list(data), safe=False)
+        except tbl_payment_request.DoesNotExist:
+            r=tbl_payment_request()
+            r.Project_id=pid
+            r.Contractor_id=cid
+            r.Customer_id=cusid
+            r.ramt=int(ramt)
+            r.status='0'
+            r.save()
+            # subject = 'Payment'
+            # message = f'{name} Just Requested For {ramt} Rupees \n'
+            # email_from = myapp.settings.EMAIL_HOST_USER        
+            # recipient_list = [email]
+            # send_mail( subject, message, email_from, recipient_list )
+            rd=tbl_payment_request.objects.filter(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
+            data=rd.values()
+            return JsonResponse(list(data), safe=False)
+

@@ -126,6 +126,7 @@
           document.getElementById('payments').style.display = "none";
         }
         else{
+          document.getElementById('trpayment').innerHTML = data;
           document.getElementById('checkproject').style.display = "none";
           document.getElementById('payments').style.display = "block";
         }
@@ -442,18 +443,31 @@
   </div>
 
 <!-- Payments  -->
-  <div class="container" id="rpayment" style="background-color:rgb(140, 171, 189);">
+  <div class="" id="rpayment" style="background-color:rgb(0, 255, 170);">
+    <h3>Request Payment</h3>
     <div class="row" style="background-color:rgb(0, 255, 170);">
-      <h3>Request Payment</h3>
-      <div class="col-xl-6" style="background-color:aquamarine;">
+      <div class="col-xl-6" >
         <div class="mb-3 mt-3">
           <label>Amount Required</label>
           <input type="text" class="form-control" id="ramount" placeholder="Enter Required Amount" name="ramount" required>
         </div>
-        <button type="button" class="btn btn-outline-info" onclick="return update_request();">Submit</button><br>
+        <button type="button" class="btn btn-outline-dark" onclick="return update_request();">Request</button><br>
       </div>
       <div class="col-xl-6">
-        <h3>Payment History</h3>
+        <h3>Payment Status</h3>
+        <h5>Total Estimated Amount : <span id="trpayment" style="color: red;"></span></h5>
+        <table class="table table-striped">
+          <tr>
+            <th>Requested Amount</th>
+            <th>Status</th>
+            <th>Remaining Amount</th>
+          </tr>
+          <tr>
+            <td id="requestedAmount">{{pay.ramt}}</td>
+            <td id="rstatus">Requested</td>
+            <td id="rtamount"></td>
+          </tr>
+        </table>
       </div><br>
       <div class="col-sm-12" align="center">
         <h3>Progress Update</h3>
@@ -461,7 +475,42 @@
     </div>
   </div>
 
+
+  <script>
+    function update_request(){
+      var cusid='{{pd.Customer_id}}';
+      var ramt=document.getElementById('ramount').value;
+      if(ramt.length > 0){
+        fetch("/add-prequest", {
+        body: JSON.stringify({ pid: pid, cid: cid, cusid: cusid,ramt:ramt }),
+        method: "POST"
+      })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        console.log(data.ramt)
+        data.forEach((item) => {
+          document.getElementById('requestedAmount').innerHTML = item.ramt;
+        if (item.status == '0'){
+          document.getElementById('rstatus').innerHTML = 'requested';
+        }
+        else{
+          document.getElementById('rstatus').innerHTML = 'paid';
+        }
+
+        })
+        });
+      }
+      else{
+        alert('Please Enter Amount');
+      }
+    }
+  </script>
+
 </body>
+
+
+
 <script>
   document.getElementById("estimate").style.display = "none";
   document.getElementById('rate').setAttribute("readonly", '');
@@ -587,6 +636,5 @@
     }
   }
 </script>
-<script src="{% static 'static1/js/usersearch.js'%}"></script>
 
 </html>

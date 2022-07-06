@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
 TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
-tbl_quotation, tbl_payment_request,tbl_payments
+tbl_quotation, tbl_payment_request,tbl_payments,tbl_progress
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
@@ -1218,7 +1218,11 @@ def manage_project(request,pid):
         try:
             r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=c.Contractor_id,Customer_id=pd.Customer_id,status='0')
             t=tbl_payments.objects.filter(rpayment_id=r.id).last()
-            return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r,'t':t})
+            try:
+                p=tbl_progress.objects.get(project_id=pid)
+                return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r,'t':t,'p':p})
+            except tbl_progress.DoesNotExist:
+                return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r,'t':t})
         except tbl_payment_request.DoesNotExist:
             return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c})
 def cal_estimate(request):
@@ -1372,7 +1376,12 @@ def manage_project_cus(request,pid):
                 context['q']=q
                 context['r']=r
                 context['pa']=pa
-                return render(request, 'manage_project_cus.html',context=context)
+                try:
+                    pro=tbl_progress.objects.get(project_id=pid)
+                    context['p']=pro
+                    return render(request, 'manage_project_cus.html',context=context)
+                except tbl_progress.DoesNotExist:
+                    return render(request, 'manage_project_cus.html',context=context)
             except tbl_payment_request.DoesNotExist:
                 currency = 'INR'
                 return render(request, 'manage_project_cus.html',{'pd':p,'d':d,'q':q})
@@ -1554,4 +1563,24 @@ def add_prequest(request):
             rd=tbl_payment_request.objects.filter(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
             data=rd.values()
             return JsonResponse(list(data), safe=False)
+
+def add_progress(request):
+    pid=request.POST.get('p_pid')
+    progress=request.POST.get('percentage')
+    label=request.POST.get('cwork')
+    try:
+        p=tbl_progress.objects.get(project_id=pid)
+        p.label=label
+        p.progress=progress
+        p.save()
+        messages.success(request, 'Progress Upadated')
+        return redirect('manage_project', pid=pid)
+    except tbl_progress.DoesNotExist:
+        p=tbl_progress()
+        p.project_id=pid
+        p.label=label
+        p.progress=progress
+        p.save()
+        messages.success(request, 'Progress Started')
+        return redirect('manage_project', pid=pid)
 

@@ -219,7 +219,7 @@ class tbl_payment_request(models.Model):
 
 class tbl_payments(models.Model):
     rpayment_id=models.CharField(max_length=10)
-    payment_id=models.CharField(max_length=10)
+    payment_id=models.CharField(max_length=50)
     pamount=models.IntegerField()
     bamount=models.IntegerField(default=0)
     date=models.DateTimeField(auto_now_add=True)
@@ -227,3 +227,11 @@ class tbl_payments(models.Model):
 
     class Meta:
         db_table ="tbl_payments"
+
+class tbl_progress(models.Model):
+    project_id=models.CharField(max_length=10)
+    progress=models.IntegerField()
+    label=models.CharField(max_length=100)
+
+    class Meta:
+        db_table ="tbl_progress"

@@ -255,10 +255,10 @@
         </div>
     </div>
     <div id="estimate">
-        <div class="row" style="height: 40%;">
+        <div class="row">
             <h2 id="heading">Approx amount of cost for given construction is Rs. <span id="total"
                     style="color: red; font-weight: bold"></span></h2><br>
-            <div class="col-md-7" style="background-color: rgb(255, 255, 255);" id="table1">
+            <div class="col-md-7" style="background-color: rgb(255, 255, 255);margin: 20px;" id="table1">
                 <table class="table table-bordered">
                     <tr>
                         <th colspan="2">
@@ -309,7 +309,33 @@
 
                 </div>
             </div><br>
-            <button class="btn" id="pay-btn">Donate❤️</button>
+            <div class="col-sm-6" align="center" style="background-color:aqua">
+                <div class="card" style="margin:20px;width:400px;height:400px;">
+                    <!-- <img class="card-img-top" src="{% static 'static1/img/handshake.png'%}" alt="Card image"> -->
+                        <div class="card-header" align="center"> <h3>Payment Requests</h3></div>
+                        <div class="card-body">
+                            <h5><span>{{d.Name}}</span></h5>
+                            <h4><span style="color:red;font-weight: bold;">{{r.ramt}}/-</span></h4>
+                        </div>
+                        <div class="card-footer">
+                            <button type="button" class="btn btn-primary" id="pay-btn" style="margin:20px;">Pay</button>
+                            <button type="button" class="btn btn-outline-danger" style="margin: 20px;">Cancel</button>
+                        </div>
+                </div>
+            </div>
+            <div class="col-sm-6" style="background-color:aqua">
+                <div class="table">
+                <table class="table table-dark table-striped" style="width: 700px;margin:20px;height:400px">
+                    <tr align="center">
+                        <th>Paid Amount</th>
+                        <th>Date</th>
+                        <th>Remaining Amount</th>
+                    </tr>
+
+                </table>
+            </div>
+            </div>
+            <!-- <button class="btn" id="pay-btn">Donate❤️</button> -->
         </div>
     </div>
 
@@ -319,7 +345,7 @@
     document.getElementById('heading').style.display = "none";
     document.getElementById('table1').style.display = "none";
     document.getElementById('div2').style.display = "none";
-    
+
     function showestimate() {
         document.getElementById("vdetails").style.display = "none";
         document.getElementById("estimate").style.display = "block";
@@ -379,32 +405,32 @@
     google.charts.load('current', { 'packages': ['corechart'] });
 
     var options = {
-       
-       // Enter the Key ID generated from the Dashboard
-       key: "{{ razorpay_merchant_key }}",
-        
-       // Amount is in currency subunits.
-       // Default currency is INR. Hence,
-       // 50000 refers to 50000 paise
-       amount: "{{ razorpay_amount }}",
-       currency: "{{ currency }}",
-        
-       // Your/store name.
-       name: "Just Click Portal",
-        
-       // Pass the `id` obtained in the response of Step 1
-       order_id: "{{ razorpay_order_id }}",
-       callback_url: "{{ callback_url }}",
-     };
-      
-     // initialise razorpay with the options.
-     var rzp1 = new Razorpay(options);
-      
-     // add event listener to the payment button.
-     document.getElementById("pay-btn").onclick = function (e) {
-       rzp1.open();
-       e.preventDefault();
-     };
+
+        // Enter the Key ID generated from the Dashboard
+        key: "{{ razorpay_merchant_key }}",
+
+        // Amount is in currency subunits.
+        // Default currency is INR. Hence,
+        // 50000 refers to 50000 paise
+        amount: "{{ razorpay_amount }}",
+        currency: "{{ currency }}",
+
+        // Your/store name.
+        name: "Just Click Portal",
+
+        // Pass the `id` obtained in the response of Step 1
+        order_id: "{{ razorpay_order_id }}",
+        callback_url: "{{ callback_url }}",
+    };
+
+    // initialise razorpay with the options.
+    var rzp1 = new Razorpay(options);
+
+    // add event listener to the payment button.
+    document.getElementById("pay-btn").onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    };
 
 </script>
 

@@ -22,7 +22,7 @@ from django.conf.urls import include,url
 
 
 urlpatterns = [
-    path('',views.index),
+    path('',views.test),
     path('admin/', admin.site.urls),
     url('', include('app.urls')),
 
@@ -117,7 +117,7 @@ urlpatterns = [
     path('manage_project_cus/<pid>',views.manage_project_cus,name='manage_project_cus'),
     path('confirm_quotation/<int:id>',views.confirm_quotation),
 
-    path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
+    path('manage_project_cus/paymenthandler/<cid>/<pid>/<rid>/<cusid>', views.paymenthandler, name='paymenthandler'),
 
 
 ]

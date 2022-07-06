@@ -26,9 +26,30 @@ from django.conf import settings
 
 
 def test(request):
-    return render(request,'test.html')
+    currency = 'INR'
+    amount = 20000  # Rs. 200
+ 
+    # Create a Razorpay Order
+    razorpay_order = razorpay_client.order.create(dict(amount=amount,
+                                                       currency=currency,
+                                                       payment_capture='0'))
+ 
+    # order id of newly created order.
+    razorpay_order_id = razorpay_order['id']
+    callback_url = 'paymenthandler/'
+ 
+    # we need to pass these details to frontend.
+    context = {}
+    context['razorpay_order_id'] = razorpay_order_id
+    context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+    context['razorpay_amount'] = amount
+    context['currency'] = currency
+    context['callback_url'] = callback_url
+    return render(request,'test.html',context=context)
 def admin(request):
     return render(request,'admin_header.html')
+
+
 def index(request):
     r=Photos.objects.all()
     dc=Photos.objects.filter(userid__istartswith='CON').order_by('-date')[:3]
@@ -1302,6 +1323,9 @@ def confirm_quotation(request,id):
         q.status='1'
         q.save()
         return redirect('/login_cus/')
+
+razorpay_client = razorpay.Client(
+    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
 def manage_project_cus(request,pid):
     if 'cusid' not in request.session:
         messages.success(request, 'Session Expired')
@@ -1314,29 +1338,40 @@ def manage_project_cus(request,pid):
             q=tbl_quotation.objects.get(Customer_id=cusid, Project_id=pid, status='1')
             p=tbl_projects.objects.get(id=pid)
             d=DETAILS.objects.get(D_id=q.Contractor_id)
-            currency = 'INR'
-            amount = 20000  # Rs. 200
-        
-            # Create a Razorpay Order
-            razorpay_order = razorpay_client.order.create(dict(amount=amount,
-                                                            currency=currency,
-                                                            payment_capture='0'))
-        
-            # order id of newly created order.
-            razorpay_order_id = razorpay_order['id']
-            callback_url = 'paymenthandler/'
-        
-            # we need to pass these details to frontend.
-            context = {}
-            context['razorpay_order_id'] = razorpay_order_id
-            context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
-            context['razorpay_amount'] = amount
-            context['currency'] = currency
-            context['callback_url'] = callback_url
-            context['pd']=p
-            context['d']=d
-            context['q']=q
-            return render(request, 'manage_project_cus.html',context=context)
+            cid=q.Contractor_id
+            try:
+                r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=q.Contractor_id,Customer_id=cusid)
+                rid=str(r.id)
+                pid=str(pid)
+                currency = 'INR'
+                if r.ramt==0:
+                    amount= 200
+                else:
+                    amount = r.ramt*100
+            
+                # Create a Razorpay Order
+                razorpay_order = razorpay_client.order.create(dict(amount=amount,
+                                                                currency=currency,
+                                                                payment_capture='0'))
+            
+                # order id of newly created order.
+                razorpay_order_id = razorpay_order['id']
+                callback_url = 'paymenthandler/'+cid+'/'+pid+'/'+rid+'/'+cusid
+            
+                # we need to pass these details to frontend.
+                context = {}
+                context['razorpay_order_id'] = razorpay_order_id
+                context['razorpay_merchant_key'] = settings.RAZOR_KEY_ID
+                context['razorpay_amount'] = amount
+                context['currency'] = currency
+                context['callback_url'] = callback_url
+                context['pd']=p
+                context['d']=d
+                context['q']=q
+                context['r']=r
+                return render(request, 'manage_project_cus.html',context=context)
+            except tbl_payment_request.DoesNotExist:
+                return render(request, 'manage_project_cus.html',{'pd':p,'d':d,'q':q})
         except tbl_quotation.DoesNotExist:
             q=None
             messages.success(request, 'This Project Did not Confirmed')
@@ -1365,12 +1400,11 @@ def show_estimate(request):
         return JsonResponse(data, safe=False)
 
 # Razor pay things ---------------------------------------------------------------------------------------       
-razorpay_client = razorpay.Client(
-    auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+
 
 @csrf_exempt
-def paymenthandler(request):
- 
+def paymenthandler(request,cid,pid,rid,cusid):
+    print(cid,rid,cusid,pid)
     # only accept POST request.
     if request.method == "POST":
         try:
@@ -1395,23 +1429,37 @@ def paymenthandler(request):
                     # capture the payemt
                     razorpay_client.payment.capture(payment_id, amount)
  
-                    # render success page on successful caputre of payment
-                    return render(request, 'paymentsuccess.html')
+                    
+                    return render(request, 'payemnt_bill.html')
                 except:
- 
+                    
                     # if there is an error while capturing payment.
-                    return render(request, 'paymentfail.html')
+                    return render(request, 'index.html')
             else:
- 
+                
                 # if signature verification fails.
-                return render(request, 'paymentfail.html')
+                return render(request, 'index.html')
         except:
+            q = tbl_quotation.objects.get(Project_id=pid, Contractor_id=cid, Customer_id=cusid, status='1')
+            total = q.amt
+            r = tbl_payment_request.objects.get(id=rid)
+            p = tbl_payments()
+            p.rpayment_id = rid
+            p.payment_id = payment_id
+            p.pamount = r.ramt
+            reamt = total-r.ramt
+            p.bamount = reamt
+            p.status = '0'
+            p.save()
+            r.ramt = 0
+            r.save()
  
             # if we don't find the required parameters in POST data
-            return HttpResponseBadRequest()
+            return render(request, 'payment_bill.html')
+
     else:
        # if other than POST request is made.
-        return HttpResponseBadRequest()
+        return HttpResponse('fail2')
 
 def check_project(request):
     if request.method == 'POST':
@@ -1439,11 +1487,11 @@ def add_prequest(request):
             r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
             r.ramt=ramt
             r.save()
-            # subject = 'Payment'
-            # message = f'{name} Just Updated The Requested Amo To {ramt} Rupees \n'
-            # email_from = myapp.settings.EMAIL_HOST_USER        
-            # recipient_list = [email]
-            # send_mail( subject, message, email_from, recipient_list )
+            subject = 'Payment'
+            message = f'{name} Just Updated The Requested Amo To {ramt} Rupees \n'
+            email_from = myapp.settings.EMAIL_HOST_USER        
+            recipient_list = [email]
+            send_mail( subject, message, email_from, recipient_list )
             rd=tbl_payment_request.objects.filter(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
             data=rd.values()
             return JsonResponse(list(data), safe=False)
@@ -1455,11 +1503,11 @@ def add_prequest(request):
             r.ramt=int(ramt)
             r.status='0'
             r.save()
-            # subject = 'Payment'
-            # message = f'{name} Just Requested For {ramt} Rupees \n'
-            # email_from = myapp.settings.EMAIL_HOST_USER        
-            # recipient_list = [email]
-            # send_mail( subject, message, email_from, recipient_list )
+            subject = 'Payment'
+            message = f'{name} Just Requested For {ramt} Rupees \n'
+            email_from = myapp.settings.EMAIL_HOST_USER        
+            recipient_list = [email]
+            send_mail( subject, message, email_from, recipient_list )
             rd=tbl_payment_request.objects.filter(Project_id=pid,Contractor_id=cid,Customer_id=cusid,status='0')
             data=rd.values()
             return JsonResponse(list(data), safe=False)

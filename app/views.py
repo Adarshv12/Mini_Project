@@ -1217,7 +1217,8 @@ def manage_project(request,pid):
         d=DETAILS.objects.get(D_id=pd.Customer_id)
         try:
             r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=c.Contractor_id,Customer_id=pd.Customer_id,status='0')
-            return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r})
+            t=tbl_payments.objects.filter(rpayment_id=r.id).last()
+            return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c,'pay':r,'t':t})
         except tbl_payment_request.DoesNotExist:
             return render(request,'manage_project.html',{'pd':pd,'d':d,'r':rates,'c':cd,'u':c})
 def cal_estimate(request):
@@ -1341,6 +1342,7 @@ def manage_project_cus(request,pid):
             cid=q.Contractor_id
             try:
                 r=tbl_payment_request.objects.get(Project_id=pid,Contractor_id=q.Contractor_id,Customer_id=cusid)
+                pa=tbl_payments.objects.filter(rpayment_id=r.id).order_by('-id')[:7]
                 rid=str(r.id)
                 pid=str(pid)
                 currency = 'INR'
@@ -1369,8 +1371,10 @@ def manage_project_cus(request,pid):
                 context['d']=d
                 context['q']=q
                 context['r']=r
+                context['pa']=pa
                 return render(request, 'manage_project_cus.html',context=context)
             except tbl_payment_request.DoesNotExist:
+                currency = 'INR'
                 return render(request, 'manage_project_cus.html',{'pd':p,'d':d,'q':q})
         except tbl_quotation.DoesNotExist:
             q=None
@@ -1407,55 +1411,94 @@ def paymenthandler(request,cid,pid,rid,cusid):
     print(cid,rid,cusid,pid)
     # only accept POST request.
     if request.method == "POST":
+        payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_order_id = request.POST.get('razorpay_order_id', '')
+        signature = request.POST.get('razorpay_signature', '')
+        params_dict = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': payment_id,
+            'razorpay_signature': signature
+        }
+
+
+        q = tbl_quotation.objects.get(
+        Project_id=pid, Contractor_id=cid, Customer_id=cusid, status='1')
+        total = q.amt
+        c = DETAILS.objects.get(D_id=cusid)
+        co = DETAILS.objects.get(D_id=cid)
+        pro = tbl_projects.objects.get(id=pid)
+        r = tbl_payment_request.objects.get(id=rid)
+        p = tbl_payments()
+        p.rpayment_id = rid
+        p.payment_id = payment_id
+        p.pamount = r.ramt
+        ramt=r.ramt
+        t=tbl_payments.objects.filter(rpayment_id=r.id)
+        if t.exists():
+            a=t.last()
+            try:
+                tbl=tbl_payments.objects.get(id=a.id)
+                bal_amt=tbl.bamount
+                p.bamount = bal_amt-ramt
+                p.status = '0'
+                p.save()
+            except tbl_payments.DoesNotExist:
+                p.bamount =total-ramt
+                p.status = '0'
+                p.save()
+        else:
+            p.bamount =total-ramt
+            p.status = '0'
+            p.save()
+
         try:
            
             # get the required parameters from post request.
-            payment_id = request.POST.get('razorpay_payment_id', '')
-            razorpay_order_id = request.POST.get('razorpay_order_id', '')
-            signature = request.POST.get('razorpay_signature', '')
-            params_dict = {
-                'razorpay_order_id': razorpay_order_id,
-                'razorpay_payment_id': payment_id,
-                'razorpay_signature': signature
-            }
+            
  
             # verify the payment signature.
             result = razorpay_client.utility.verify_payment_signature(
                 params_dict)
+            
             if result is None:
-                amount = 20000  # Rs. 200
+                amount = r.ramt  # Rs. 200
                 try:
  
                     # capture the payemt
                     razorpay_client.payment.capture(payment_id, amount)
  
                     
-                    return render(request, 'payemnt_bill.html')
+                    
+                    pd=tbl_payments.objects.last()
+                    r.ramt = 0
+                    r.save()
+                    # if we don't find the required parameters in POST data
+                    return render(request, 'payment_bill.html',{'ramt':ramt,'pd':pd,'c':c,'co':co,'pro':pro})
                 except:
                     
-                    # if there is an error while capturing payment.
-                    return render(request, 'index.html')
+                    
+                    pd=tbl_payments.objects.last()
+                    r.ramt = 0
+                    r.save()
+                    # if we don't find the required parameters in POST data
+                    return render(request, 'payment_bill.html',{'ramt':ramt,'pd':pd,'c':c,'co':co,'pro':pro})
+                       
             else:
                 
-                # if signature verification fails.
-                return render(request, 'index.html')
+                
+                pd=tbl_payments.objects.last()
+                r.ramt = 0
+                r.save()
+                # if we don't find the required parameters in POST data
+                return render(request, 'payment_bill.html',{'ramt':ramt,'pd':pd,'c':c,'co':co,'pro':pro})
         except:
-            q = tbl_quotation.objects.get(Project_id=pid, Contractor_id=cid, Customer_id=cusid, status='1')
-            total = q.amt
-            r = tbl_payment_request.objects.get(id=rid)
-            p = tbl_payments()
-            p.rpayment_id = rid
-            p.payment_id = payment_id
-            p.pamount = r.ramt
-            reamt = total-r.ramt
-            p.bamount = reamt
-            p.status = '0'
-            p.save()
+            
+            
+            pd=tbl_payments.objects.last()
             r.ramt = 0
             r.save()
- 
             # if we don't find the required parameters in POST data
-            return render(request, 'payment_bill.html')
+            return render(request, 'payment_bill.html',{'ramt':ramt,'pd':pd,'c':c,'co':co,'pro':pro})
 
     else:
        # if other than POST request is made.
@@ -1488,7 +1531,7 @@ def add_prequest(request):
             r.ramt=ramt
             r.save()
             subject = 'Payment'
-            message = f'{name} Just Updated The Requested Amo To {ramt} Rupees \n'
+            message = f'{name} Just Requested For {ramt} Rupees \n'
             email_from = myapp.settings.EMAIL_HOST_USER        
             recipient_list = [email]
             send_mail( subject, message, email_from, recipient_list )

@@ -325,13 +325,19 @@
             </div>
             <div class="col-sm-6" style="background-color:aqua">
                 <div class="table">
-                <table class="table table-dark table-striped" style="width: 700px;margin:20px;height:400px">
+                <table class="table table-dark table-striped" style="width: 700px;margin:20px;">
                     <tr align="center">
                         <th>Paid Amount</th>
                         <th>Date</th>
                         <th>Remaining Amount</th>
                     </tr>
-
+                    {% for i in pa %}
+                    <tr align="center"> 
+                        <td>{{i.pamount}}</td>
+                        <td>{{i.date}}</td>
+                        <td>{{i.bamount}}</td>
+                    </tr>
+                    {% endfor %}
                 </table>
             </div>
             </div>
@@ -424,10 +430,11 @@
     };
 
     // initialise razorpay with the options.
-    var rzp1 = new Razorpay(options);
+    
 
     // add event listener to the payment button.
     document.getElementById("pay-btn").onclick = function (e) {
+        var rzp1 = new Razorpay(options);
         rzp1.open();
         e.preventDefault();
     };

@@ -91,6 +91,7 @@
     function showdetails() {
       document.getElementById("vdetails").style.display = "block";
       document.getElementById("estimate").style.display = "none";
+      document.getElementById("rpayment").style.display = "none";
 
     } function showestimate() {
       document.getElementById("vdetails").style.display = "none";
@@ -102,7 +103,7 @@
     }
     function rpayment() {
       document.getElementById("vdetails").style.display = "none";
-      document.getElementById('rpayment').style.display="block";
+      document.getElementById('rpayment').style.display = "block";
 
     }
     function close() {
@@ -111,21 +112,21 @@
     function showpop() {
       document.getElementById("userpopup").style.display = "block";
     }
-    var pid='{{pd.id}}';
-    var cid='{{u.Contractor_id}}';
+    var pid = '{{pd.id}}';
+    var cid = '{{u.Contractor_id}}';
     console.log(pid, cid);
     fetch("/check-project", {
-        body: JSON.stringify({ a: pid, c: cid}),
-        method: "POST"
-      })
+      body: JSON.stringify({ a: pid, c: cid }),
+      method: "POST"
+    })
       .then((res) => res.json())
       .then((data) => {
         console.log(data);
-        if(data == 'false'){
+        if (data == 'false') {
           document.getElementById('checkproject').style.display = "block";
           document.getElementById('payments').style.display = "none";
         }
-        else{
+        else {
           document.getElementById('trpayment').innerHTML = data;
           document.getElementById('checkproject').style.display = "none";
           document.getElementById('payments').style.display = "block";
@@ -159,8 +160,8 @@
           </div>
           <div id="payments">
             <li class="nav-item">
-              <button class="nav-link btn btn-outline-info" onclick="return rpayment();">Payments
-                </button>
+              <button class="nav-link btn btn-outline-info" onclick="return rpayment();">Payment and Progress
+              </button>
             </li>
           </div>
           <!-- <div>
@@ -442,14 +443,15 @@
     <button type="button" class="btn btn-success" id="submitbtn" onclick="return showpop();">Submit</button>
   </div>
 
-<!-- Payments  -->
+  <!-- Payments  -->
   <div class="" id="rpayment" style="background-color:rgb(0, 255, 170);">
     <h3>Request Payment</h3>
     <div class="row" style="background-color:rgb(0, 255, 170);">
-      <div class="col-xl-6" >
+      <div class="col-xl-6">
         <div class="mb-3 mt-3">
           <label>Amount Required</label>
-          <input type="text" class="form-control" id="ramount" placeholder="Enter Required Amount" name="ramount" required>
+          <input type="text" class="form-control" id="ramount" placeholder="Enter Required Amount" name="ramount"
+            required>
         </div>
         <button type="button" class="btn btn-outline-dark" onclick="return update_request();">Request</button><br>
       </div>
@@ -465,7 +467,7 @@
           <tr>
             <td id="requestedAmount">{{pay.ramt}}</td>
             <td id="rstatus">Requested</td>
-            <td id="rtamount"></td>
+            <td id="rtamount">{{t.bamount}}</td>
           </tr>
         </table>
       </div><br>
@@ -479,32 +481,32 @@
 
 
   <script>
-    function update_request(){
-      var cusid='{{pd.Customer_id}}';
-      var ramt=document.getElementById('ramount').value;
-      if(ramt.length > 0){
+    function update_request() {
+      var cusid = '{{pd.Customer_id}}';
+      var ramt = document.getElementById('ramount').value;
+      if (ramt.length > 0) {
         fetch("/add-prequest", {
-        body: JSON.stringify({ pid: pid, cid: cid, cusid: cusid,ramt:ramt }),
-        method: "POST"
-      })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        console.log(data.ramt)
-        data.forEach((item) => {
-          document.getElementById('requestedAmount').innerHTML = item.ramt;
-        if (item.status == '0'){
-          document.getElementById('rstatus').innerHTML = 'requested';
-        }
-        else{
-          document.getElementById('rstatus').innerHTML = 'paid';
-        }
-
+          body: JSON.stringify({ pid: pid, cid: cid, cusid: cusid, ramt: ramt }),
+          method: "POST"
         })
-        });
-        document.getElementById('ramount').value="";
+          .then((res) => res.json())
+          .then((data) => {
+            console.log(data);
+            console.log(data.ramt)
+            data.forEach((item) => {
+              document.getElementById('requestedAmount').innerHTML = item.ramt;
+              if (item.status == '0') {
+                document.getElementById('rstatus').innerHTML = 'requested';
+              }
+              else {
+                document.getElementById('rstatus').innerHTML = 'paid';
+              }
+
+            })
+          });
+        document.getElementById('ramount').value = "";
       }
-      else{
+      else {
         alert('Please Enter Amount');
       }
     }
@@ -523,7 +525,7 @@
   document.getElementById('invoice').style.display = "none";
   document.getElementById('submitbtn').style.display = "none";
   document.getElementById('generatebtn').style.display = "none";
-  document.getElementById('rpayment').style.display="none";
+  document.getElementById('rpayment').style.display = "none";
 
   var today = new Date();
   var dd = String(today.getDate()).padStart(2, '0');

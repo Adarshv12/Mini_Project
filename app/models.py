@@ -221,8 +221,8 @@ class tbl_payments(models.Model):
     rpayment_id=models.CharField(max_length=10)
     payment_id=models.CharField(max_length=10)
     pamount=models.IntegerField()
-    bamount=models.IntegerField()
-    date=models.DateField(auto_now_add=True)
+    bamount=models.IntegerField(default=0)
+    date=models.DateTimeField(auto_now_add=True)
     status=models.CharField(max_length=5)
 
     class Meta:

@@ -460,6 +460,10 @@
         var coords = lat + ',' + lon;
         document.getElementById("google_map").setAttribute('src', 'https://maps.google.co.in/?q=' + coords + '&output=embed');
     }
+    var lat = document.getElementById('lat').value;
+    var lon = document.getElementById('lon').value;
+    var coords = lat + ',' + lon;
+    document.getElementById("google_map").setAttribute('src', 'https://maps.google.co.in/?q=' + coords + '&output=embed');
     google.charts.load('current', { 'packages': ['corechart'] });
 
     var options = {

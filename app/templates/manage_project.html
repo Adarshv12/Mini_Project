@@ -518,7 +518,7 @@
         </table>
       </div><br>
       <div class="col-sm-12" align="center">
-        <h2>Progress Update</h2><br>
+        <h2>Progress Update</h2><br>`
         <div class="card" style="background-color:rgb(132, 211, 177);width: 800px;margin: 10px;">
           <div style="margin: 20px;">
           <form action="/add_progress/" method="post">
@@ -618,19 +618,26 @@
   var dd = String(today.getDate()).padStart(2, '0');
   var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
   var yyyy = today.getFullYear();
+  function showmap() {
+
+var lat = document.getElementById('lat').value;
+var lon = document.getElementById('lon').value;
+var coords = lat + ',' + lon;
+document.getElementById("google_map").setAttribute('src', 'https://maps.google.co.in/?q=' + coords + '&output=embed');
+}
 
   today = mm + '/' + dd + '/' + yyyy;
   document.getElementById('date').innerHTML = today;
   document.getElementById('invoice').style.display = "none";
 
 
-  function showmap() {
+  
 
     var lat = document.getElementById('lat').value;
     var lon = document.getElementById('lon').value;
     var coords = lat + ',' + lon;
     document.getElementById("google_map").setAttribute('src', 'https://maps.google.co.in/?q=' + coords + '&output=embed');
-  }
+  
   function show() {
     if (document.getElementById('rate').hasAttribute('readonly')) {
       document.getElementById('rate').removeAttribute('readonly');

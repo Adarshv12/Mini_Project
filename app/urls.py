@@ -25,6 +25,7 @@ urlpatterns = [
         path('check-project', csrf_exempt(views.check_project),name='check-project'),   # likepost view at /likepost
         path('add-prequest', csrf_exempt(views.add_prequest),name='add-prequest'),
         path('paymenthandler/', views.paymenthandler, name='paymenthandler'),
+        path('show-review', csrf_exempt(views.show_review),name='show-review'),
            # likepost view at /likepost
 
         

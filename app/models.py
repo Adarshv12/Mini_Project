@@ -235,3 +235,14 @@ class tbl_progress(models.Model):
 
     class Meta:
         db_table ="tbl_progress"
+
+class tbl_rating(models.Model):
+    from_id=models.CharField(max_length=10)
+    project_id=models.CharField(max_length=10)
+    to_id=models.CharField(max_length=10)
+    rating=models.IntegerField()
+    review=models.CharField(max_length=100)
+    date=models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table ="tbl_rating"

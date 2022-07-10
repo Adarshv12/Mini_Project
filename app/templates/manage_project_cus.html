@@ -169,10 +169,10 @@
             <a class="close" href="javascript:close()">&times;</a>
             <div class="row">
                 <div class="col-sm-12" align="center">
-                    <input type="hidden" name="pid" value="{{pd.id}}">
-                    <input type="hidden" name="cid" value="{{u.Contractor_id}}">
-                    <input type="hidden" name="cusid" value="{{pd.Customer_id}}">
-                    <input type="hidden" name="amount" id="amount">
+                    <!-- <input type="hidden" name="pid"  value="{{pd.id}}">
+                    <input type="hidden" name="cid"  value="{{u.Contractor_id}}">
+                    <input type="hidden" name="cusid"  value="{{pd.Customer_id}}">-->
+                    <input type="hidden" name="amount" id="amount"> 
                     <h1>Progress</h1>
                     <div class="progress" style="height:20px;width:800px;">
                         <div id="progress_bar" class="progress-bar" style="height:20px;">{{p.progress}}%</div>
@@ -193,11 +193,14 @@
             <a class="close" href="javascript:close()">&times;</a>
                 <div class="col-sm-12" align="center">
                     <div class="stars">
-                        <form action="">
+                        <form action="/add_review_cus/" method="post">
+                            {% csrf_token %}
                             <input class="star star-5" id="star-5" type="radio" value="5" name="star"/>
 
                             <label class="star star-5" for="star-5"></label>
-
+                            <input type="hidden" name="to" id="to" value="{{d.D_id}}">
+                            <input type="hidden" name="from" id="from" value="{{pd.Customer_id}}">
+                            <input type="hidden" name="pid"id="pid" value="{{pd.id}}">
                             <input class="star star-4" id="star-4" type="radio" value="4" name="star" />
 
                             <label class="star star-4" for="star-4"></label>
@@ -208,12 +211,12 @@
 
                             <input class="star star-2" id="star-2" type="radio" value="2" name="star" />
 
-                            <label class="star star-2" for="star-2"></label>
+                            <label class="star star-2" for="star-2"></label>    
 
                             <input class="star star-1" id="star-1" type="radio" value="1" name="star" />
 
                             <label class="star star-1" for="star-1"></label>
-                            <textarea class="form-control" placeholder="Review"></textarea><br>
+                            <textarea class="form-control" name="review" id="review" placeholder="Review"></textarea><br>
                             <button type="submit" class="btn btn-outline-success">save</button>
                         </form>
                     </div>
@@ -226,6 +229,25 @@
         var pvalue = '{{p.progress}}';
         var pvalue1 = pvalue + '%';
         document.getElementById('progress_bar').style.width = pvalue1;
+        var to=document.getElementById('to').value;
+        var pid=document.getElementById('pid').value;
+        var from=document.getElementById('from').value;
+        console.log(to, from,pid);
+        fetch("/show-review", {
+        body: JSON.stringify({ to: to, pid: pid, from: from }),
+        method: "POST"
+      })
+      .then((res) => res.json())
+      .then((data) =>{
+        console.log(data);
+        data.forEach((item) => {
+            var id=item.rating;
+            var sid='star-'+id;
+            console.log(sid);
+            document.getElementById(sid).setAttribute('checked','true');
+            document.getElementById('review').value=item.review;
+        })
+      });
     </script>
 
     {% if messages %}

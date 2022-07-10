@@ -249,9 +249,12 @@
       <a class="close" href="javascript:close()">&times;</a>
           <div class="col-sm-12" align="center">
               <div class="stars">
-                  <form action="">
+                  <form action="/add_review_cus/" method="post">
+                    {% csrf_token %}
                       <input class="star star-5" id="star-5" type="radio" value="5" name="star"/>
-
+                      <input type="hidden" name="from" id="from" value="{{u.Contractor_id}}">
+                      <input type="hidden" name="to" id="to"  value="{{pd.Customer_id}}">
+                      <input type="hidden" name="pid" id="pid" value="{{pd.id}}">
                       <label class="star star-5" for="star-5"></label>
 
                       <input class="star star-4" id="star-4" type="radio" value="4" name="star" />
@@ -269,7 +272,7 @@
                       <input class="star star-1" id="star-1" type="radio" value="1" name="star" />
 
                       <label class="star star-1" for="star-1"></label>
-                      <textarea class="form-control" placeholder="Review"></textarea><br>
+                      <textarea class="form-control" name="review" id="review" placeholder="Review"></textarea><br>
                       <button type="submit" class="btn btn-outline-success">save</button>
                   </form>
               </div>
@@ -285,7 +288,28 @@
   </div>
   {% endfor %}
   {% endif %}
+<script>
+  var to = document.getElementById('to').value;
+  var pid = document.getElementById('pid').value;
+  var from = document.getElementById('from').value;
+  console.log(to, from, pid);
+  fetch("/show-review", {
+    body: JSON.stringify({ to: to, pid: pid, from: from }),
+    method: "POST"
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      console.log(data);
+      data.forEach((item) => {
+        var id = item.rating;
+        var sid = 'star-' + id;
+        console.log(sid);
+        document.getElementById(sid).setAttribute('checked', 'true');
+        document.getElementById('review').value = item.review;
+      })
+    });
 
+</script>
   <div class="row" id="vdetails">
     <div class="row">
       <div class="col-xl-6">
@@ -358,13 +382,13 @@
           <form action="">
             <div class="mb-3 mt-3">
               <label>Builtup Area</label>
-              <input type="text" class="form-control" id="area" placeholder="Enter Area (In Sqft)" name="sqft" required>
+              <input type="text" class="form-control" id="area" placeholder="Enter Area (In Sqft)" name="sqft" onKeyDown="return numOnly(event)" required>
             </div>
             <div class="mb-3 mt-3">
               <label>Approx Cost (Per Square Feet) </label><br>
             </div>
             <div class="input-group mb-3">
-              <input type="text" class="form-control" id="rate" name="rate" value="{{r.Rate}}">
+              <input type="text" class="form-control" id="rate" name="rate" value="{{r.Rate}}" onKeyDown="return numOnly(event)">
               <input type="hidden" value="{{r.Type_id}}" id="typer">
               <button class="btn btn-success" type="button" onclick="show();"><svg xmlns="http://www.w3.org/2000/svg"
                   width="16" height="16" fill="currentColor" class="bi bi-pencil-fill" viewBox="0 0 16 16">

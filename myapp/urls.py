@@ -119,6 +119,7 @@ urlpatterns = [
 
     path('manage_project_cus/paymenthandler/<cid>/<pid>/<rid>/<cusid>', views.paymenthandler, name='paymenthandler'),
     path('add_progress/',views.add_progress),
+    path('add_review_cus/',views.add_review_cus),
 
 
 ]

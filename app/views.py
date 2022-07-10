@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.shortcuts import render
 from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
 TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
-tbl_quotation, tbl_payment_request,tbl_payments,tbl_progress
+tbl_quotation, tbl_payment_request,tbl_payments,tbl_progress,tbl_rating
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.core.files.storage import FileSystemStorage
 from django.db.models import Q
@@ -1583,4 +1583,45 @@ def add_progress(request):
         p.save()
         messages.success(request, 'Progress Started')
         return redirect('manage_project', pid=pid)
+
+def add_review_cus(request):
+    from1=request.POST.get('from')
+    to=request.POST.get('to')
+    review=request.POST.get('review')
+    pid=request.POST.get('pid')
+    rating=request.POST.get('star')
+    try:
+        p=tbl_rating.objects.get(to_id=to, project_id=pid)
+        p.review=review
+        p.rating=rating
+        p.save()
+        if 'CON' in from1:
+            messages.success(request, 'Review Updated')
+            return redirect('manage_project', pid=pid)
+        else:
+            messages.success(request, 'Review Updated')
+            return redirect('manage_project_cus', pid=pid)
+    except tbl_rating.DoesNotExist:
+        p=tbl_rating()
+        p.review=review
+        p.rating=rating
+        p.project_id=pid
+        p.from_id=from1
+        p.to_id=to
+        p.save()
+        if 'CON' in from1:
+            messages.success(request, 'Review Added')
+            return redirect('manage_project', pid=pid)
+        else:
+            messages.success(request, 'Review Added')
+            return redirect('manage_project_cus', pid=pid)
+def show_review(request):
+    if request.method == 'POST':
+        pid=json.loads(request.body).get('pid')
+        to=json.loads(request.body).get('to')
+        from1=json.loads(request.body).get('from')
+        t=tbl_rating.objects.filter(from_id=from1,project_id=pid)
+        data=t.values()
+        return JsonResponse(list(data), safe=False)
+
 

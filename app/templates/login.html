@@ -40,14 +40,14 @@
                 <form action="/login_user/" method="post" class="tm-bg-black p-5 h-100">
                     {% csrf_token %}
                     <div class="input-field">
-                        <input placeholder="Username" name="username" type="text" class="validate" required autocomplete="off">
+                        <input placeholder="Username" name="username" id="username" type="text" class="validate" required autocomplete="off">
                     </div>
                     <div class="input-field mb-5">
-                        <input placeholder="Password" name="password" type="password" class="validate" required autocomplete="off">
+                        <input placeholder="Password" name="password" type="password" id="password" class="validate" required autocomplete="off">
                     </div>
                     <div class="tm-flex-lr">
                         <a href="/signup/" class="white-text small">Create an Account</a>
-                        <button type="submit" class="waves-effect btn-large btn-large-white px-4 black-text rounded-0">Login</button>
+                        <button type="submit" class="waves-effect btn-large btn-large-white px-4 black-text rounded-0" id="submit">Login</button>
                     </div>
                 </form>
             </div>

@@ -4,7 +4,7 @@ from xml.sax.handler import DTDHandler
 from django.shortcuts import redirect
 from django.shortcuts import render
 from app.models import LOGIN, DETAILS, CUSTOMER_DETAILS, idgenerator, RATES, SHOP_DETAILS, \
-TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, COMPANY_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
+TYPE_OF_WORK, WORKER_DETAILS, CONTRACTOR_DETAILS, Photos, Messages,work_invite,suggestions, tbl_projects, tbl_contractor_invite,\
 tbl_quotation, tbl_payment_request,tbl_payments,tbl_progress,tbl_rating
 from django.http import HttpResponse, HttpResponseBadRequest, JsonResponse
 from django.core.files.storage import FileSystemStorage

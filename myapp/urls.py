@@ -19,17 +19,19 @@ from app import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import include,url
+from django.views.static import serve
 
 
 urlpatterns = [
     path('',views.test),
     path('admin/', admin.site.urls),
     url('', include('app.urls')),
-
+    url(r'^media/(?P<path>.*)$', serve,{'document_root':       settings.MEDIA_ROOT}), 
+    url(r'^static/(?P<path>.*)$', serve,{'document_root': settings.STATIC_ROOT}),
     path('index/',views.index),
     path('signup/',views.signup),
     path('register/',views.register),
-    path('login/',views.login),
+    path('login/',views.login,name='login'),
     path('application/',views.application),
     path('signup_customer/',views.signup_customer),
     path('signup_contractor/',views.signup_contractor),

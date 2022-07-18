@@ -65,16 +65,16 @@ class WORKER_DETAILS(models.Model):
 
     class Meta:
         db_table = "WORKER_DETAILS"
-class COMPANY_DETAILS(models.Model):
-    Company_id=models.CharField(max_length=10)
-    co_name=models.CharField(max_length=20)
-    li_no=models.CharField(max_length=20)
-    status=models.CharField(max_length=30)
-    password=models.CharField(max_length=15)
+# class COMPANY_DETAILS(models.Model):
+#     Company_id=models.CharField(max_length=10)
+#     co_name=models.CharField(max_length=20)
+#     li_no=models.CharField(max_length=20)
+#     status=models.CharField(max_length=30)
+#     password=models.CharField(max_length=15)
 
 
-    class Meta:
-        db_table = "COMPANY_DETAILS"
+    # class Meta:
+    #     db_table = "COMPANY_DETAILS"
 class TYPE_OF_WORK(models.Model):
     Type_id=models.CharField(max_length=10)
     Type_of_work=models.CharField(max_length=30)
@@ -165,12 +165,7 @@ class suggestions(models.Model):
     class Meta:
         db_table ="suggestions"
 
-class materials(models.Model):
-    M_name=models.CharField(max_length=50)
-    Type=models.CharField(max_length=30)
 
-    class Meta:
-        db_table ="materials"
 
 class tbl_projects(models.Model):
     Customer_id=models.CharField(max_length=20)

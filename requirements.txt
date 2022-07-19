@@ -19,8 +19,8 @@ cachetools==5.2.0
 # debugpy==1.6.0
 # decorator==5.1.1
 Django==3.2.9
-# django-dajax==0.9.2
-# django-dajaxice==0.7
+django-dajax==0.9.2
+django-dajaxice==0.7
 django-debug-toolbar==3.5.0
 # django-google-maps==0.13.0
 # entrypoints==0.4
